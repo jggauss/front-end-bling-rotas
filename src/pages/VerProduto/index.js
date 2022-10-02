@@ -1,0 +1,77 @@
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom"
+
+import api from "../../config/configApi";
+
+export const VerProduto = () => {
+    var id = useParams()
+    
+    const [status, setStatus] = useState({
+        type:  "",
+        mensagem: "",
+    });
+    const [dados, setDados] = useState([]);
+
+    useEffect(() => {
+
+        const getProduto = () => {
+            var od = id.id
+
+            api.get("/produtos/produto/" + od)
+
+                .then((response) => {
+                    setDados(response.data)
+
+                })
+
+                .catch((err) => {
+                    if (err.response) {
+                        setStatus({
+                            type: "error",
+                            mensagem: err.response.data.mensagem,
+                        });
+                    } else {
+                        setStatus({
+                            type: "error",
+                            mensagem: "Erro. Tente mais tarde",
+                        });
+                    }
+                })
+
+        }
+        getProduto()
+    }, [id.id])
+
+
+    return (
+        <>
+            <h1>Produto</h1>
+            <Link to='/'>Home </Link>{" / "}
+            
+            <Link to='/pegaTodosProdutos'>Busca Todos os Produtos </Link>{" / "}
+            <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}
+
+            <Link to={'/pegaumproduto/'+dados.codigo}><button type="button">Atualizar do Bling</button> </Link>{" / "}
+            {status.type === "error" ? <p> {status.mensagem}</p> : ""}
+            {status.type === "success" ? <p> {status.mensagem}</p> : ""}
+            
+            <hr />
+            SKU : {dados.codigo}
+            <br />
+            Nome : {dados.name}
+            <br />
+            Id no Bling : {dados.idBling}
+            <br />
+            Situação : {dados.situacao}
+            <br />
+            Preço de custo : {dados.precoCusto}
+            <br />
+            Marca : {dados.marca}
+            <br />
+            Fornecedor : {dados.nomeFornecedor}
+            <br />
+            <hr/>
+        </>
+
+    )
+}
