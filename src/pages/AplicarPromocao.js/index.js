@@ -165,7 +165,7 @@ export const AplicarPromocao = () => {
     return (
         <div>
             <h1>Aplicar Promoção</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to={'/pegaTodosProdutos/categoria/' + loja}>Produtos por categoria </Link>{" / "}
             <Link to={'/produtosloja/' + loja}> Produtos por Marca </Link>{" / "}
             <Link to={'/produtosloja/pesquisa/' + loja}> Produtos por Nome </Link>{" / "}

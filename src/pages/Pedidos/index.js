@@ -8,12 +8,15 @@ import { ExibeDataDia } from "../../services/exibeDataDia"
 import { ExibeData } from "../../services/exibeData"
 import { SomaDias } from "../../services/servSomaDias";
 
+
 export const PegaTodosPedidos = () => {
   var { state } = useLocation();
   const [status, setStatus] = useState({
     type: state ? state.type : "",
     mensagem: state ? state.mensagem : "",
   });
+  
+
   
   const [data, setData] = useState([])
   const dataHoje = new Date()
@@ -23,7 +26,11 @@ export const PegaTodosPedidos = () => {
   
   const [fimIntervalo, setFimIntervalo] = useState(dataHoje)
   const [page, setPage] = useState("")
-  const [loja, setLoja] = useState("Selecione Loja")
+
+  
+   
+  
+  const [loja, setLoja] = useState("203975574 - Jubileu")
   const [lastPage, setLastPage] = useState("")
   const [pedidos, setPedidos] = useState({
     cpfCnpj: '',
@@ -35,32 +42,38 @@ export const PegaTodosPedidos = () => {
 
   })
 
+
+
+  
   const [verifica, setVerifica] = useState(false)
  
-  const getPedidos = async () => {
-    setLoja(loja)
-    let idLoja = loja.replace(/\D/g, '')
-    await api.get("/pedidos/pedidos/listar/" + idLoja)
-      .then((response) => {
-
-        setPage(page)
-        setData(response.data)
-        setLastPage(response.data.lastPage)
-      }).catch((err) => {
-        if (err.response) {
-          setStatus({
-            type: 'error',
-            mensagem: err.response.data.mensagem
-          })
-        } else {
-          setStatus({
-            type: "error",
-            mensagem: "Erro. Tente mais tarde"
-          })
-        }
-      })
-  }
+  
   useEffect(() => {
+
+    const getPedidos = async () => {
+   
+      let idLoja = loja.replace(/\D/g, '')
+      await api.get("/pedidos/pedidos/listar/" + idLoja)
+        .then((response) => {
+  
+          setPage(page)
+          setData(response.data)
+          setLastPage(response.data.lastPage)
+        }).catch((err) => {
+          if (err.response) {
+            setStatus({
+              type: 'error',
+              mensagem: err.response.data.mensagem
+            })
+          } else {
+            setStatus({
+              type: "error",
+              mensagem: "Erro. Tente mais tarde"
+            })
+          }
+        })
+    }
+
     getPedidos()
   }, [loja])
   
@@ -79,14 +92,15 @@ export const PegaTodosPedidos = () => {
         for (let i = 0; i <= qtdRegistros; i++) {
           let item = response.data[i]
 
-          pedidos.cpfCnpj = item.pedido.cliente.cnpj
-          pedidos.nomeCliente = item.pedido.cliente.nome
-          pedidos.data = item.pedido.data
-          pedidos.valorFrete = item.pedido.valorfrete
-          pedidos.outrasDespesas = item.pedido.outrasdespesas
-          pedidos.totalProdutos = item.pedido.totalprodutos
-          pedidos.totalCustoProdutos = item.pedido.totalCustoProdutos
-          pedidos.totalDesconto = item.pedido.totalDesconto
+         setPedidos(
+          {cpfCnpj : item.pedido.cliente.cnpj,
+          nomeCliente : item.pedido.cliente.nome,
+          data : item.pedido.data,
+          valorFrete : item.pedido.valorfrete,
+          outrasDespesas : item.pedido.outrasdespesas,
+          totalProdutos : item.pedido.totalprodutos,
+          totalCustoProdutos : item.pedido.totalCustoProdutos,
+          totalDesconto : item.pedido.totalDesconto})
 
         }
 
@@ -106,14 +120,11 @@ export const PegaTodosPedidos = () => {
   const valueInputfim = (e)=>
   setFimIntervalo(e.target.value)
 
-  function resultadoMargem(){
-    
-  }
-
+  
   return (
     <div>
       <h1>Pedidos</h1>
-      <Link to='/'>Home </Link>{" / "}
+      <Link to='/home'>Home </Link>{" / "}
       <Link to='/produtos'>Produtos</Link>{" / "}
       <Link to='/buscalojas'>Lojas</Link>{" / "}
       <Link to='/pedidos'>Pedidos</Link>{" / "}
@@ -167,7 +178,8 @@ export const PegaTodosPedidos = () => {
               <td>{(Number(pedidos.outrasDespesas).toFixed(2)).replace('.',',')}</td>
               <td>{(((pedidos.totalProdutos)-(pedidos.totalCustoProdutos)-(pedidos.outrasDespesas)).toFixed(2)).replace('.',',')}</td>
               <td>{((((pedidos.totalProdutos)-(pedidos.totalCustoProdutos)-(pedidos.outrasDespesas))*100)/Number(pedidos.totalProdutos)).toFixed(1).replace(".",",")}%</td>
-              
+              <br/>
+              {lastPage}
               <td>
                 <div>
                   <Link to={"/pedidos/" + pedidos.numeroPedidoLoja + "/" + pedidos.idLojaVirtual}>Visualizar</Link>

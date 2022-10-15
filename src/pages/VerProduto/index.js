@@ -46,7 +46,7 @@ export const VerProduto = () => {
     return (
         <>
             <h1>Produto</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             
             <Link to='/pegaTodosProdutos'>Busca Todos os Produtos </Link>{" / "}
             <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}

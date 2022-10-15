@@ -14,7 +14,7 @@ export const PegaUmPedido = () => {
     const [comissaoLoja,setComissaoLoja] = useState(0)
     const [dados, setDados] = useState([])
     const [data, setData] = useState([])
-    const [nome, setNome] = useState("")
+    
     
    
     
@@ -37,44 +37,41 @@ export const PegaUmPedido = () => {
 
 
 
-    const getPedido = async () => {
-        const mercado = nomeLoja(loja)
-        
-        
-        async function buscaItens(id) {
-            await api.get('/pedidos/pedido/itens/' + id)
-                .then((responseItens) => {
-                    setData(responseItens.data)
+    
+    useEffect(() => {
+
+        const getPedido = async () => {
+            nomeLoja(loja)
+            
+            
+            async function buscaItens(id) {
+                await api.get('/pedidos/pedido/itens/' + id)
+                    .then((responseItens) => {
+                        setData(responseItens.data)
+                    })
+                    .catch(() => { })
+            }
+            await api.get('/pedidos/pedido/' + id)
+                .then((response) => {
+                    setDados(response.data)
                 })
                 .catch(() => { })
+    
+    
+            buscaItens(id)
         }
-        await api.get('/pedidos/pedido/' + id)
-            .then((response) => {
-                setDados(response.data)
-            })
-            .catch(() => { })
 
 
-        buscaItens(id)
-    }
-    useEffect(() => {
+
         getPedido()
     }, [loja])
 
-    async function mostraNomeProduto(id) {
-        await api.get('/produto/' + id)
-            .then((response) => {
-
-                setNome(response.data)
-            })
-            .catch(() => { })
-    }
-
+    
 
     return (
         <div>
             <h1>Consulta Pedido</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to='/produtos'>Produtos</Link>{" / "}
             <Link to='/buscalojas'>Lojas</Link>{" / "}
             <Link to='/pedidos'>Pedidos</Link>{" / "}
@@ -115,7 +112,7 @@ export const PegaUmPedido = () => {
                 </thead>
                 <tbody>
                     {data.map((produto) => (
-                        <tr>
+                        <tr key={produto.codigo}>
                             <td>{produto.codigo}</td>
                             <td>{produto.descricao}</td>
                             <td>{(Number(produto.valorUnidade)).toFixed(2).replace('.', ',')}</td>

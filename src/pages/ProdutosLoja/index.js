@@ -58,8 +58,16 @@ export const ProdutosLoja = () => {
             page = 1
         }
         setPage(page)
-        market = nomeLoja(loja)
-        await api.get("/produtoslojas/produtosloja/" + page + "/" + loja + "/" + marca + "/" + tipo + "/" + promocao)
+        nomeLoja(loja)
+        
+         const valueToken = localStorage.getItem("token")
+         const headers = {
+             'headers':{
+             'Authorization':'Bearer '+ valueToken
+             }
+         }
+
+        await api.get("/produtoslojas/produtosloja/" + page + "/" + loja + "/" + marca + "/" + tipo + "/" + promocao,headers)
             .then((response) => {
                 setData(response.data.produtosPorLoja)
                 setLastPage(response.data.lastPage)
@@ -84,7 +92,7 @@ export const ProdutosLoja = () => {
             })
 
         if (pesquisa.length > 0) {
-            await api.get("/produtoslojas/produtosloja/" + page + "/" + loja + "/" + pesquisa)
+            await api.get("/produtoslojas/produtosloja/" + page + "/" + loja + "/" + pesquisa,headers)
                 .then((response) => {
                     setData(response.data.produtosPorLoja)
                     setLastPage(response.data.lastPage)
@@ -122,10 +130,12 @@ export const ProdutosLoja = () => {
         localStorage.setItem("listaSelecionados", listaSelecionados)
         return listaSelecionados
     }
-    async function apagarPromocao() {
+    async function apagarPromocao(loja) {
         let listaSelecionados = localStorage.getItem('listaSelecionados').split(',')
+        
         async function salvaOferta(dadosOferta) {
-            await api.put('produtoslojas/produtoloja/' + loja + "/" + dadosOferta.produtoid, dadosOferta)
+
+            await api.put('/produtoslojas/produtoloja/' + loja + "/" + dadosOferta.produtoid, dadosOferta)
                 .then((response) => {
                     setStatus({
                         type: "success",
@@ -142,7 +152,7 @@ export const ProdutosLoja = () => {
                 })
         }
         for (let i = 0; i < listaSelecionados.length; i++) {
-            await api.get("produtoslojas/produtoloja/" + loja + "/" + listaSelecionados[i])
+            await api.get("/produtoslojas/produtoloja/" + loja + "/" + listaSelecionados[i])
                 .then((produto) => {
                     let dadosOferta = {
                         id: produto.data.id,
@@ -179,7 +189,13 @@ export const ProdutosLoja = () => {
             type: "success",
             mensagem: "Produto enviado",
         });
-        await api.put('produtoslojas/enviaumproduto/' + produtoid + "/" + idLoja,(req,res)=>
+        const valueToken = localStorage.getItem("token")
+        const headers = {
+            'headers':{
+            'Authorization':'Bearer '+ valueToken
+            }
+        }
+        await api.put('produtoslojas/enviaumproduto/' + produtoid + "/" + idLoja,headers,(req,res)=>
         {try {
             res.status(200)
             return
@@ -203,18 +219,14 @@ export const ProdutosLoja = () => {
         for (let i = 0; i < listaSelecionados.length; i++) {
             var percentual = (((i + 1) * 100) / totalLista).toFixed(1)
             setPercent(percentual)
-            console.log(listaSelecionados[i])
             enviaUmPreco(listaSelecionados[i])
-            //await api.put('/enviaumproduto/' + listaSelecionados[i] + "/" + idLoja)
-            //.then(()=>{})
-            //.catch(()=>{})
             
             async function sleep(ms) {
                 return new Promise((resolve) => {
                     setTimeout(resolve, ms);
                 });
             }
-            await sleep(1015);
+            await sleep(350);
             
             
         }
@@ -227,9 +239,15 @@ export const ProdutosLoja = () => {
     async function enviaTodos(idLoja) {
         setStatus({
             type: "success",
-            mensagem: "Enviando produtos. Este produtos pode demorar alguns minutos",
+            mensagem: "Enviando produtos. Este processo pode demorar alguns minutos",
         });
-        await api.get('produtoslojas/produtosloja/pesquisa/' + idLoja)
+        const valueToken = localStorage.getItem("token")
+        const headers = {
+            'headers':{
+            'Authorization':'Bearer '+ valueToken
+            }
+        }
+        await api.get('produtoslojas/produtosloja/pesquisa/' + idLoja,headers)
             .then((listaProdutos) => {
                 async function rodaEnviarTodos() {
                     var totalLista = listaProdutos.data.length
@@ -243,7 +261,7 @@ export const ProdutosLoja = () => {
                                 setTimeout(resolve, ms);
                             });
                         }
-                        await sleep(1015);
+                        await sleep(350);
                     }
                 }
                 rodaEnviarTodos()
@@ -260,7 +278,7 @@ export const ProdutosLoja = () => {
     return (
         <>
             <h1>Produtos por Loja</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to={'/produtosloja/' + loja}> Listar Produtos </Link>{" / "}
             <Link to={'/produtosloja/promocao/' + loja}> Produtos com promoção </Link>{" / "}
             <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}
@@ -273,10 +291,10 @@ export const ProdutosLoja = () => {
 
             <h2>Loja : {market} - {idLoja}</h2>
             <Link to={'/produtos/promocao/' + loja}><button>Aplicar Promoção</button></Link>
-            <Link to="#" onClick={() => apagarPromocao()}><button type="button">Apagar Promoção</button></Link>
+            <Link to="#" onClick={() => apagarPromocao(loja)}><button type="button">Apagar Promoção</button></Link>
             <Link to="#" onClick={() => limparPesquisas()}><button type="button">Limpar pesquisas</button></Link>
-            <Link to="#" onClick={() => enviarSelecionados(idLoja)}><button type="button">Enviar Preços Selecionados</button></Link>
-            <Link to="#" onClick={() => enviaTodos(idLoja)}><button type="button">Enviar Preços todos produtos da loja</button></Link>
+            {/* <Link to="#" onClick={() => enviarSelecionados(idLoja)}><button type="button">Enviar Preços Selecionados</button></Link>
+            <Link to="#" onClick={() => enviaTodos(idLoja)}><button type="button">Enviar Preços todos produtos da loja</button></Link> */}
             <form>
                 <label>Pesquisa</label>
                 <input type="text" name="pesquisa" placeholder="Pesquisa por nome, SKU ou marca" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)}></input>
@@ -333,7 +351,7 @@ export const ProdutosLoja = () => {
                             <td>{produtos.fimOfertaHora}</td>
                             <td>
                                 <Link to={"/produtoloja/" + idLoja + "/" + produtos.produtoid}>Visualizar</Link>
-                                <Link to="#" onClick={() => enviaUmPreco(produtos.produtoid)}> / Enviar preço</Link>
+                                {/* <Link to="#" onClick={() => enviaUmPreco(produtos.produtoid)}> / Enviar preço</Link> */}
                             </td>
                             <td>
 

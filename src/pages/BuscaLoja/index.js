@@ -3,22 +3,29 @@ import { Link, useParams, useLocation } from "react-router-dom"
 import api from "../../config/configApi";
 import { servDeleteLoja } from "../../services/servDeleteLoja";
 import { servPrecificaLoja } from "../../services/servPrecificaLoja";
-import { servEnviaPrecos } from "../../services/servEnviaPrecos";
+
 
 
 export const BuscaLoja = () => {
     var { loja } = useParams()
     var { state } = useLocation();
     const [dados, setDados] = useState([])
-    const [aguarde,setAguarde] = useState("")
+    const [aguarde, setAguarde] = useState("")
     const [status, setStatus] = useState({
         type: state ? state.type : "",
         mensagem: state ? state.mensagem : "",
     });
-    const [verifica,setVerifica]=useState(false)
+    const [verifica, setVerifica] = useState(false)
     useEffect(() => {
         const getLoja = async () => {
-            await api.get("/lojas/loja/" + loja)
+            const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+
+            await api.get("/lojas/loja/" + loja, headers)
                 .then((response) => {
                     setDados({
                         name: response.data.name,
@@ -50,7 +57,7 @@ export const BuscaLoja = () => {
                         });
                     }
                 })
-    
+
         }
         getLoja()
     }, [loja])
@@ -82,17 +89,12 @@ export const BuscaLoja = () => {
             });
         }
         setVerifica(false)
-        
+
         setAguarde("Processo finalizados. Todos os produtos da loja foram baixados")
         BuscaLoja()
     };
 
-    const enviaPrecos = async (idLoja) => {
 
-        await servEnviaPrecos(idLoja);
-
-
-    };
     const Child = () => {
         if (dados.aumentaValorPedidoMinimo === true) {
             return <div>Sim</div>
@@ -102,7 +104,7 @@ export const BuscaLoja = () => {
     return (
         <>
             <h1>Visualizar Loja</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to={"/buscaloja/" + loja}>Visualizar   </Link>{" / "}
             <Link to={"/editarloja/" + loja}>Editar   </Link>{" / "}
             <Link to="#" onClick={() => deleteLoja(loja)}>Apagar</Link>{" / "}
@@ -112,27 +114,27 @@ export const BuscaLoja = () => {
 
             <Link to='/criarloja'><button type="button">Criar loja</button></Link>{" / "}
             <Link to="#" onClick={() => precificaLoja(loja)}><button type="button">Precificar</button></Link>
-            
+
             {status.type === "success" ? <p>{status.mensagem}</p> : ("")}
             {status.type === "error" ? <p>{status.mensagem}</p> : ("")}
 
             <hr />
-                {aguarde}
-                <h1>Nome : {dados.name}<br /></h1>
-                Código no Bling : {dados.codigoBling}<br />
-                Comissão : {dados.comissao}<br />
-                Margem Bruta : Igual ou acima do valor mínimo acrescentar percentual : {dados.percentAcrescAcimaMinimo}<br />
-                <h2><p>Regras de preço</p></h2>
-                Abaixo do valor mínimo para frete grátis acrescentar valor R$ : {dados.valorAcrescAbaixoMinimo}<br />
-                Abaixo do valor mínimo para frete grátis acrescentar percentual : {dados.percentAcrescAbaixoMinimo}<br />
-                <h2>Valor para frete grátis : {dados.valorFreteGratis}</h2>
-                Igual ou acima do valor mínimo para frete grátis acrescentar valor R$ : {dados.valorAcresAcimaMinimo}<br />
-                <p>Valores frete acima do valor mínimo: (opcionais)</p>
-                Frete em valor fixo : {dados.valorFixoFreteAcima}<br />
-                Percentual frete : {dados.valorPercentFreteAcima}<br />
-                Deseja arredondar para o valor do pedido mínimo em caso de ficar abaixo : <Child />
-                Valor acima do qual deseja que seja arredondado : {dados.valorAcimaAumentaParaPedidoMinimo}
-                {verifica===true?<div className="c-loader"></div>:""}
+            {aguarde}
+            <h1>Nome : {dados.name}<br /></h1>
+            Código no Bling : {dados.codigoBling}<br />
+            Comissão : {dados.comissao}<br />
+            Margem Bruta : Igual ou acima do valor mínimo acrescentar percentual : {dados.percentAcrescAcimaMinimo}<br />
+            <h2><p>Regras de preço</p></h2>
+            Abaixo do valor mínimo para frete grátis acrescentar valor R$ : {dados.valorAcrescAbaixoMinimo}<br />
+            Abaixo do valor mínimo para frete grátis acrescentar percentual : {dados.percentAcrescAbaixoMinimo}<br />
+            <h2>Valor para frete grátis : {dados.valorFreteGratis}</h2>
+            Igual ou acima do valor mínimo para frete grátis acrescentar valor R$ : {dados.valorAcresAcimaMinimo}<br />
+            <p>Valores frete acima do valor mínimo: (opcionais)</p>
+            Frete em valor fixo : {dados.valorFixoFreteAcima}<br />
+            Percentual frete : {dados.valorPercentFreteAcima}<br />
+            Deseja arredondar para o valor do pedido mínimo em caso de ficar abaixo : <Child />
+            Valor acima do qual deseja que seja arredondado : {dados.valorAcimaAumentaParaPedidoMinimo}
+            {verifica === true ? <div className="c-loader"></div> : ""}
         </>
     )
 }

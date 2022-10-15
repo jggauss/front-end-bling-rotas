@@ -10,15 +10,23 @@ export const BuscaProdutosCustoZero = () => {
     });
     const [dados, setDados] = useState([]);
     useEffect(() => {
-        const getProdutos = () => {
-            api.get("/produtos/produtos/zerados")
+        const getProdutos = async () => {
+            const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+            await api.get("/produtos/zerados", headers)
                 .then((response) => {
                     const dadosBrutos = (response.data)
+
                     setDados(dadosBrutos)
                 })
                 .catch((err) => {
                     if (err.response) {
                         setStatus({
+
                             type: "error",
                             mensagem: err.response.data.mensagem,
                         });
@@ -37,7 +45,7 @@ export const BuscaProdutosCustoZero = () => {
         <>
             <h1>Produtos com custo zero</h1>
             <p>Estes produtos estão com seus custos zerados no Bling. Para que o sistema calcule o preço de venda é nescessário que o custo no bling esteja preenchido corretamente. Não foi calculado preço de venda. Se existia um preço anterior no seu Bling ele foi apenas repetido neste sistema sem alteração</p>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to='/pegaTodosProdutos'>Busca Todos os Produtos </Link>{" / "}
             <Link to='/buscalojas'>Listar Lojas</Link>{" / "}
             <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}
@@ -60,7 +68,7 @@ export const BuscaProdutosCustoZero = () => {
                 <tbody>
                     {dados.map((linha) => (
                         <tr key={linha.codigo}>
-                            {linha.length>0?linha:null}
+                            {linha.length > 0 ? linha : null}
                             <td>{linha.codigo}</td>
                             <td>{linha.idBling}</td>
                             <td>{linha.name}</td>

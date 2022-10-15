@@ -3,10 +3,11 @@ import { Link, useLocation } from "react-router-dom"
 import api from "../../config/configApi";
 import AsyncSelect from 'react-select/async';
 import { callApi } from "../../services/servCallCategorias";
+
 export const MostraProdutos = () => {
     var { state } = useLocation();
     var [marca, setMarca] = useState('Selecione Marca')
-    var [categoria, setCategoria] = useState('Selecione Categoria')
+    var categoria = 'g'
     const [data, setData] = useState([])
     const [page, setPage] = useState("")
     var [pesquisa, setPesquisa] = useState("")
@@ -15,36 +16,52 @@ export const MostraProdutos = () => {
         type: state ? state.type : "",
         mensagem: state ? state.mensagem : "",
     });
-   
-    let mostra = marca + pesquisa
+
+    
     let listaSelecionados = []
     localStorage.setItem("listaSelecionados", listaSelecionados)
-    
+    let mostra = marca + pesquisa
     const getProdutos = async (page) => {
         if (page === undefined) {
             page = 1
         }
+
+       
         setPage(page)
-        await api.get("/produtos/produtos/" + page + "/" + marca + "/" + categoria)
-            .then((response) => {
-                setPage(page)
-                setData(response.data.produtos)
-                setLastPage(response.data.lastPage)
-            }).catch((err) => {
-                if (err.response) {
-                    setStatus({
-                        type: 'error',
-                        mensagem: err.response.data.mensagem
-                    })
-                } else {
-                    setStatus({
-                        type: "error",
-                        mensagem: "Erro. Tente mais tarde"
-                    })
+        if (pesquisa.length === 0) {
+            const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
                 }
-            })
+            }
+            await api.get("/produtos/produtos/" + page + "/" + marca + "/" + categoria, headers)
+                .then((response) => {
+                    setPage(page)
+                    setData(response.data.produtos)
+                    setLastPage(response.data.lastPage)
+                }).catch((err) => {
+                    if (err.response) {
+                        setStatus({
+                            type: 'error',
+                            mensagem: err.response.data.mensagem
+                        })
+                    } else {
+                        setStatus({
+                            type: "error",
+                            mensagem: "Erro. Tente mais tarde"
+                        })
+                    }
+                })
+        }
         if (pesquisa.length > 0) {
-            await api.get("/produtos/produtos/" + page + "/" + pesquisa)
+            const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+            await api.get("/produtos/produtos/" + page + "/" + pesquisa, headers)
                 .then((response) => {
                     setPage(page)
                     setData(response.data.produtosPorLoja)
@@ -65,15 +82,16 @@ export const MostraProdutos = () => {
         }
     }
     useEffect(() => {
+        
         getProdutos()
-    }, [mostra])
+    },[mostra])
 
     function limparPesquisas() {
         setMarca("Selecione Marca")
-        
+
         //setTipo("Todos")
         setPesquisa("")
-        'input:checkbox'.prop("checked", false)
+        //'input:checkbox'.prop("checked", false)
     }
 
     function montaArray(e) {
@@ -86,42 +104,67 @@ export const MostraProdutos = () => {
         return listaSelecionados
     }
     async function buscaProdutos() {
-        await api.post('pegatodosprodutos')
+        const valueToken = localStorage.getItem("token")
+        const headers = {
+            'headers': {
+                'Authorization': 'Bearer ' + valueToken
+            }
+        }
+        await api.post('/produtos/pegatodosprodutos', headers)
             .then(() => {
             })
             .catch(() => {
             })
-            console.log("busca de produtos finalizada")
         getProdutos()
-        console.log("busca de produtos finalizada")
     }
+
+    async function precificaSelecionados(){
+        var lista = localStorage.getItem("listaSelecionados",listaSelecionados).split(",")
+        var valueToken = localStorage.getItem("token")
+        const headers = {
+            'headers':{
+            'Authorization':'Bearer '+ valueToken
+            }
+        }
+        await api.post("/produtos/precifica/selecionado",lista, headers)
+        setStatus({
+            type: 'success',
+            mensagem: "Produtos atualizados"
+        })
+
+        
+    }
+
+
+
     return (
         <>
             <h1>Produtos</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}
             <Link to="#" onClick={() => buscaProdutos()}><button type="button">Busca produtos no Bling</button></Link>
+            <Link to="#" onClick={() => precificaSelecionados()}><button type="button">Precifica selecionados</button></Link>
 
             <hr />
             {status.type === "error" ? <p> {status.mensagem}</p> : ""}
             {status.type === "success" ? <p> {status.mensagem}</p> : ""}
-            
+
             <form>
                 <label>Pesquisa</label>
                 <input type="text" name="pesquisa" placeholder="Pesquisa por nome, SKU ou marca" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)}></input>
             </form>
             <Link to="#" onClick={() => limparPesquisas()}><button type="button">Limpar pesquisas</button></Link><br />
-           
+
             <label>Marca : {marca} </label>
-             <AsyncSelect
+            <AsyncSelect
                 cacheOptions
                 loadOptions={callApi}
                 onChange={(e) => setMarca(e.value)}
                 value={setMarca}
                 defaultOptions
             />
-            
-            
+
+
             <table>
                 <thead>
                     <tr>
@@ -156,7 +199,7 @@ export const MostraProdutos = () => {
                     ))}
                 </tbody>
             </table>
-           
+
             <hr />
             {page !== 1 ? <button type="button" onClick={() => getProdutos(1)}>Primeira</button> : <button type="button" disabled>Primeira</button>} {" "}
             {page !== 1 ? <button type="button" onClick={() => getProdutos(page - 1)}>{page - 1}</button> : ""} {" "}

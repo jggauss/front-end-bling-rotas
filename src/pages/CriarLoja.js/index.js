@@ -33,8 +33,7 @@ export const CriarLoja = () => {
         e.preventDefault()
         if (!(await validate())) return
         const dadosLoja = { ...user, ...numeros }
-        console.log('oi cheguei aqui 1')
-        console.log(dadosLoja)
+        
         await api.post('/lojas/lojas', dadosLoja)
             .then((response) => {
                 setStatus({
@@ -55,6 +54,7 @@ export const CriarLoja = () => {
                     });
                 }
             })
+            
     }
     const marcaCheckbox = async (e) => {
         return numeros.aumentaValorPedidoMinimo = true
@@ -86,7 +86,7 @@ export const CriarLoja = () => {
     return (
         <>
             <h1>Criar Loja</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to='/buscalojas'>Listar Lojas</Link>{" / "}
             <hr />
             {status.type === "error" ? (<p>{status.mensagem}</p>) : ("")}

@@ -15,7 +15,13 @@ export const callCategorias = async (idLoja) => {
 }
 
 export const callApi = async (idLoja) => {
-    const data = await api.get("/servicos/marcas")
+    const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+    const data = await api.get("/servicos/marcas", headers)
         .then((menuMarcas) => montaTexto(menuMarcas))
         .catch((err) => {
             // let status={

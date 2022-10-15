@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom"
 import api from "../../config/configApi";
 import { servDeleteLoja } from "../../services/servDeleteLoja";
+
 export const BuscaLojas = () => {
     const [lista, setLista] = useState([])
     var { state } = useLocation();
@@ -16,7 +17,13 @@ export const BuscaLojas = () => {
             page = 1
         }
         setPage(page)
-        await api.get("/lojas/lojas/" + page)
+        var valueToken = localStorage.getItem("token")
+        const headers = {
+            'headers':{
+            'Authorization':'Bearer '+ valueToken
+            }
+        }
+        await api.get("/lojas/lojas/" + page, headers)
             .then((response) => {
                 setLista(response.data.lojas);
                 setLastPage(response.data.lastPage)
@@ -53,12 +60,36 @@ export const BuscaLojas = () => {
             });
         }
     };
+
+    async function precificarTodos(){
+        setStatus({
+            type: "success",
+            mensagem: "Pegando todos os produtos. Isso pode demorar alguns minutos.",
+        });
+        var valueToken = localStorage.getItem("token")
+        const headers = {
+            'headers':{
+            'Authorization':'Bearer '+ valueToken
+            }
+        }
+        await api.post('/produtoslojas/precifica',lista,headers)
+        console.log("Processo finalizado. Todos os produtos de todas as lojas foram precificados")
+        setStatus({
+            type: "success",
+            mensagem: "Processo finalizado. Todos os produtos de todas as lojas foram precificados",
+        });
+
+    }
+
     return (
         <>
             <h1>Lojas</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to='/buscalojas'>Listar</Link>{" / "}
             <Link to='/criarloja'><button type="button">Criar loja</button></Link>    {" / "}
+            
+            <Link to="#" onClick={() => precificarTodos()}><button type="button">Precificar tudo</button></Link>
+
             <hr />
             {status.type === "error" ? <p>{status.mensagem}</p> : ""}
             {status.type === "success" ? <p> {status.mensagem}</p> : ""}
@@ -80,7 +111,7 @@ export const BuscaLojas = () => {
                             <td>{linha.name}</td>
                             <td>{linha.codigoBling}</td>
                             <td>
-                                <Link to={"/buscaloja/" + linha.id}>Visualizar   </Link>
+                                <Link to={"/buscaloja/" + linha.codigoBling}>Visualizar   </Link>
                                 <Link to={"/editarloja/" + linha.id}>Editar   </Link>
                                 <Link to="#" onClick={() => deleteLoja(linha.id)}>Apagar</Link>
                             </td>

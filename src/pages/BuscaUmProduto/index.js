@@ -11,11 +11,17 @@ export const BuscaUmProduto = ()=>{
     const [dados, setDados] = useState([]);
     useEffect(()=>{
     const getProduto =()=>{
-        api.get("produtos/pegaumproduto/"+id)
+      const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+
+        api.get("produtos/pegaumproduto/"+id, headers)
         .then((response)=>{
             const dadosBrutos = (response.data)
             const dados = dadosBrutos[0].produto
-            //console.log(dados)
             setDados(dados)
         })
         .catch((err) => {
@@ -37,7 +43,7 @@ export const BuscaUmProduto = ()=>{
     return (
             <div>
                 <h1>Busca um produto</h1>
-                <Link to='/'>Home </Link>{" / "}
+                <Link to='/home'>Home </Link>{" / "}
                 <Link to='/pegaTodosProdutos'>Busca Todos os Produtos </Link>{" / "}
                 <Link to='/buscalojas'>Listar Lojas</Link>{" / "}
                 <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}

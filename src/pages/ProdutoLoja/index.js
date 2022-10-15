@@ -20,23 +20,23 @@ export const ProdutoLoja = () => {
         fimOferta: "",
         fimOfertaHora:null
     });
-    let dadosOferta={
-        id: '',
-        idLojaVirtual: '',
-        idProdutoLoja: '',
-        lojaid: '',
-        marca: '',
-        name: '',
-        namecategoria: '',
-        precoVenda: 0,
-        produtoid: '',
-        tipoSimplesComposto: '',
-        precoOferta: 0,
-        inicioOferta: new Date(),
-        inicioOfertaHora:null ,
-        fimOferta: new Date(),
-        fimOfertaHora:null 
-    }
+    // let dadosOferta={
+    //     id: '',
+    //     idLojaVirtual: '',
+    //     idProdutoLoja: '',
+    //     lojaid: '',
+    //     marca: '',
+    //     name: '',
+    //     namecategoria: '',
+    //     precoVenda: 0,
+    //     produtoid: '',
+    //     tipoSimplesComposto: '',
+    //     precoOferta: 0,
+    //     inicioOferta: new Date(),
+    //     inicioOfertaHora:null ,
+    //     fimOferta: new Date(),
+    //     fimOfertaHora:null 
+    // }
     
     const nomeLoja = async (loja) => {
         await api.get("/lojas/lojabling/" + loja)
@@ -60,7 +60,7 @@ export const ProdutoLoja = () => {
     const getLoja = async (e) => {
         await api.get("/produtoslojas/produtoloja/" + loja + "/" + id)
             .then((produto) => {
-                const marketplace = nomeLoja(loja)
+                nomeLoja(loja)
                 
                 setDados({
                     name:produto.data.name,
@@ -115,7 +115,7 @@ export const ProdutoLoja = () => {
             });
             return
         }
-        await api.put('/produtoloja/' + loja + "/" + id, dados)
+        await api.put('/produtoslojas/produtoloja/' + loja + "/" + id, dados)
             .then((response) => {
                 setStatus({
                     type: "success",
@@ -131,39 +131,11 @@ export const ProdutoLoja = () => {
                 }
             })
     }
-    async function apagarPromocao(id){
-        async function salvaOferta(dados){
-            await api.put('/produtoloja/' + loja + "/" + id, dados)
-            .then((response) => {
-                setStatus({
-                    type: "success",
-                    mensagem: response.data.mensagem,
-                });
-            })
-            .catch((err) => {
-                if (err.response) {
-                    setStatus({
-                        type: "error",
-                        mensagem: err.response.data.mensagem,
-                    });
-                }
-            })
-        }
-            await api.get("/produtoloja/" + loja + "/" + id)
-            .then((produto) => {
-                dadosOferta={
-                    id: produto.data.id,
-                    precoOferta: 0,
-                    inicioOferta: null,
-                    fimOferta: null,
-                }
-                salvaOferta(dadosOferta)
-            }).catch(() => {})
-    }
+    
     return (
         <div>
             <h1>Consulta produto na loja </h1>
-            <Link to='/'>Home</Link>{" / "}
+            <Link to='/home'>Home</Link>{" / "}
             <Link to='/produtos'>Produtos</Link>{" / "}
             <Link to='/buscalojas'>Lojas</Link>{" / "}
             <hr />

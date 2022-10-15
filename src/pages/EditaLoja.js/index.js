@@ -97,7 +97,6 @@ export const EditaLoja = (props) => {
                 })
                 .catch((err) => {
 
-                    console.log("Loja não encontrada carai")
                 })
         }
         getLoja()
@@ -148,7 +147,7 @@ export const EditaLoja = (props) => {
     return (
         <>
             <h1>Editar Loja</h1>
-            <Link to='/'>Home </Link>{" / "}
+            <Link to='/home'>Home </Link>{" / "}
             <Link to={"/buscaloja/" + loja}>Visualizar   </Link>{" / "}
             <Link to={"/editarloja/" + loja}>Editar   </Link>{" / "}
             <Link to="#" onClick={() => deleteLoja(loja)}>Apagar</Link>{" / "}
