@@ -1,5 +1,5 @@
 
-import React,{useState} from "react";
+import React,{useEffect, useState} from "react";
 import {Link} from "react-router-dom"
 import api from "../../../config/configApi";
 
@@ -7,6 +7,7 @@ import * as yup from 'yup';
 
 
 export const LoginCadatrar = ()=>{
+    console.log("cheguei no logincadastrar")
     const [status, setStatus] = useState({
         type:  "",
         mensagem:  "",
@@ -15,7 +16,8 @@ export const LoginCadatrar = ()=>{
       const [user, setUser] = useState({
         name: "",
         email: "",
-        password:""
+        password:"",
+        apkey:""
     });
     const valueInput = (e) =>
         setUser({ ...user, [e.target.name]: e.target.value });
@@ -23,8 +25,6 @@ export const LoginCadatrar = ()=>{
 
       const addUser = async (e) => {
         e.preventDefault()
-
-        
         if(!(await validate())) return
         const dadosUser = {...user}
 
@@ -50,7 +50,7 @@ export const LoginCadatrar = ()=>{
                 })
             })
             
-
+        console.log("vou entrar no backend do cadastrar usuário")
         await api.post('/login/cadastrar',dadosUser)
           .then(()=>{
             setStatus({
@@ -63,11 +63,15 @@ export const LoginCadatrar = ()=>{
           
       }
 
+      
+
       async function validate(){
         let schema = yup.object().shape({
+            apikey: yup.string("Nescessário preencher a api key 1").required("Nescessário preencher a api key 1"),
             password: yup.string("Nescessário preencher a senha").required("Nescessário preencher a senha").min(6,"Erro. A senha deve ter mais do que 6 caracteres"),
             email: yup.string("Nescessário preencher o email").required("Nescessário preencher o email"),
             name: yup.string("Nescessário preencher o nome").required("Nescessário preencher o nome"),
+            
             
             
           });
@@ -75,7 +79,9 @@ export const LoginCadatrar = ()=>{
             await schema.validate({
                 name: user.name,
                 email:user.email,
-                password:user.password
+                apikey:user.apikey,
+                password:user.password,
+                
             })
             return true
           } catch (err){
@@ -106,6 +112,9 @@ export const LoginCadatrar = ()=>{
                     <input type="text" name="name" placeholder="Nome do seu e-comerce" onChange={valueInput}></input><br/>
                     <label>E-mail</label>
                     <input type="text " name="email" placeholder="Digite seu melhor e-mail" onChange={valueInput}></input><br/>
+                    <label>Api Key do Bling</label>
+                    <input type="text " name="apikey" placeholder="Digite a chave de api gerada no Bling" onChange={valueInput}></input><br/>
+                    
                     <label>Senha</label>
                     <input type="password" name="password" placeholder="Digite sua senha" onChange={valueInput}></input><br/>
                     <label>Repita a Senha</label>

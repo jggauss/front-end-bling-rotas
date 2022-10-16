@@ -55,7 +55,7 @@ export default function RoutesAdm() {
 
                 <Route path="/" element={<Login/>}/>
                 <Route path="/login/cadastrar" element={<LoginCadatrar/>}/>
-                <Route path="/login" element={<CustomRoute redirectTo="/"><LoginAlterar/> /</CustomRoute>} />
+                <Route path="/login/alterar" element={<CustomRoute redirectTo="/"><LoginAlterar/> /</CustomRoute>} />
                 <Route path="/dashboard" element={<CustomRoute redirectTo="/"><Dashboard/> /</CustomRoute>} />
             </Routes>
         </div>

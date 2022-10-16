@@ -73,7 +73,7 @@ export const Login = ()=>{
                     
                     <button type="submit">Login</button>
                     
-                    {/* <Link to='/login/cadastrar'>Cadastrar Usuário</Link> */}
+                   <Link to='/login/cadastrar'>Cadastrar Usuário</Link>
 
                  </form>
 
