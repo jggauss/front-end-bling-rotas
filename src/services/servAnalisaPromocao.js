@@ -1,4 +1,5 @@
-import { FormataData } from "./formataData";
+import moment from "moment";
+
 
 export const AnalisaPromocao = (dados) => {
 
@@ -8,9 +9,8 @@ export const AnalisaPromocao = (dados) => {
         mensagem:''
     }
     const dataHoje = new Date()
-
     if (dados.inicioOferta !== "<empty string>") {
-        if (dados.inicioOferta < FormataData(dataHoje)) {
+        if (moment(dados.inicioOferta).format("DD/MM/YYYY") < moment(dataHoje).format("DD/MM/YYYY")) {
             status = ({
                 type: "error",
                 mensagem: "Erro. Data início da promoção menor que data de hoje ou data em branco",

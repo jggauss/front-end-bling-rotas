@@ -2,11 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom"
 import AsyncSelect from 'react-select/async';
 import api from "../../config/configApi";
-
 import { callLojas } from "../../services/servCallCategorias"
-import { ExibeDataDia } from "../../services/exibeDataDia"
 import { ExibeData } from "../../services/exibeData"
-import { SomaDias } from "../../services/servSomaDias";
+const moment = require('moment')
 
 
 export const PegaTodosPedidos = () => {
@@ -15,22 +13,13 @@ export const PegaTodosPedidos = () => {
     type: state ? state.type : "",
     mensagem: state ? state.mensagem : "",
   });
-  
-
-  
   const [data, setData] = useState([])
-  const dataHoje = new Date()
-  const inicioData = ()=> SomaDias()
+  const dataHoje = moment(new Date()).format("DD/MM/YYYY")
+  const inicioData = moment(dataHoje).subtract(2,'days').format("DD/MM/YYYY")
   const [inicioIntervalo, setInicioIntervalo] = useState(inicioData)
-  
-  
   const [fimIntervalo, setFimIntervalo] = useState(dataHoje)
   const [page, setPage] = useState("")
-
-  
-   
-  
-  const [loja, setLoja] = useState("203975574 - Jubileu")
+  const [loja, setLoja] = useState("")
   const [lastPage, setLastPage] = useState("")
   const [pedidos, setPedidos] = useState({
     cpfCnpj: '',
@@ -39,23 +28,21 @@ export const PegaTodosPedidos = () => {
     valorFrete: '',
     outrasDespesas: '',
     totalProdutos: '',
-
   })
-
-
-
   
   const [verifica, setVerifica] = useState(false)
- 
-  
   useEffect(() => {
-
     const getPedidos = async () => {
-   
       let idLoja = loja.replace(/\D/g, '')
-      await api.get("/pedidos/pedidos/listar/" + idLoja)
+      const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+      await api.get("/pedidos/pedidos/listar/" + idLoja,headers)
         .then((response) => {
-  
+          
           setPage(page)
           setData(response.data)
           setLastPage(response.data.lastPage)
@@ -80,13 +67,20 @@ export const PegaTodosPedidos = () => {
   
   async function listarPedidos() {
     setVerifica(true)
-    setInicioIntervalo(inicioData)
-
+    //setInicioIntervalo(inicioData)
     let inicioFim = {
-      inicioIntervalo:ExibeData(inicioIntervalo),
-      fimIntervalo:ExibeDataDia(fimIntervalo)
+      inicioIntervalo:moment(inicioIntervalo).format("DD/MM/YYYY"),
+      fimIntervalo:moment(fimIntervalo).format("DD/MM/YYYY")
     }
-    await api.post("/pedidos/pedidos",inicioFim)
+
+    const valueToken = localStorage.getItem("token")
+    const headers = {
+        'headers': {
+            'Authorization': 'Bearer ' + valueToken
+        }
+    }
+
+    await api.post("/pedidos/pedidos",inicioFim,headers)
       .then((response) => {
         let qtdRegistros = response.data.length
         for (let i = 0; i <= qtdRegistros; i++) {
@@ -120,6 +114,16 @@ export const PegaTodosPedidos = () => {
   const valueInputfim = (e)=>
   setFimIntervalo(e.target.value)
 
+  function MargemPedido(pedidos){
+    
+    return (((pedidos.totalProdutos)-(pedidos.totalCustoProdutos)-(pedidos.outrasDespesas)).toFixed(2)).replace('.',',')
+}
+
+function PercentualPedido(pedidos){
+    
+  return ((((pedidos.totalProdutos)-(pedidos.totalCustoProdutos)-(pedidos.outrasDespesas))*100)/Number(pedidos.totalProdutos)).toFixed(1).replace(".",",")
+}
+
   
   return (
     <div>
@@ -137,7 +141,7 @@ export const PegaTodosPedidos = () => {
       <input type="date" name="fimIntervalo" value={fimIntervalo} onChange = {valueInputfim}></input>
       <Link to="#" onClick={() => listarPedidos()}><button type="button">Buscar todos Pedidos do intervalo</button><br /></Link>
       <br/>
-      <label>Loja : {loja} </label>
+      <label>Loja : {loja} </label>- Escolha uma loja abaixo
       <AsyncSelect
         cacheOptions
         loadOptions={callLojas}
@@ -176,8 +180,8 @@ export const PegaTodosPedidos = () => {
               <td>{(Number(pedidos.totalDesconto).toFixed(2)).replace('.',',')}</td>
               <td>{(Number(pedidos.valorFrete).toFixed(2)).replace('.',',')}</td>
               <td>{(Number(pedidos.outrasDespesas).toFixed(2)).replace('.',',')}</td>
-              <td>{(((pedidos.totalProdutos)-(pedidos.totalCustoProdutos)-(pedidos.outrasDespesas)).toFixed(2)).replace('.',',')}</td>
-              <td>{((((pedidos.totalProdutos)-(pedidos.totalCustoProdutos)-(pedidos.outrasDespesas))*100)/Number(pedidos.totalProdutos)).toFixed(1).replace(".",",")}%</td>
+              <td>{MargemPedido(pedidos)}</td>
+              <td>{PercentualPedido(pedidos)}%</td>
               <br/>
               {lastPage}
               <td>

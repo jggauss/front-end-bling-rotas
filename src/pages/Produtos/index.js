@@ -25,8 +25,7 @@ export const MostraProdutos = () => {
         if (page === undefined) {
             page = 1
         }
-
-       
+               
         setPage(page)
         if (pesquisa.length === 0) {
             const valueToken = localStorage.getItem("token")
@@ -115,7 +114,7 @@ export const MostraProdutos = () => {
             })
             .catch(() => {
             })
-        getProdutos()
+        
     }
 
     async function precificaSelecionados(){

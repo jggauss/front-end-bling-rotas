@@ -3,8 +3,7 @@ import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 import api from "../../config/configApi";
 import moment from "moment";
 
-
-export const AplicarPromocao = () => {
+export const AplicarDesconto = () => {
     const { loja, market } = useParams()
     var [market1, setMarket1] = useState(market)
     const [exibeLista, setExibeLista] = useState([])
@@ -40,7 +39,6 @@ export const AplicarPromocao = () => {
         type: state ? state.type : "",
         mensagem: state ? state.mensagem : "",
     });
-    const dataHoje = new Date()
 
     const valueInput = (e) => {
         setNumeros({ ...numeros, [e.target.name]: e.target.value.replace(/\D[^,]\D/g, '') })
@@ -52,7 +50,7 @@ export const AplicarPromocao = () => {
             if (verificaListaVazia === "") {
                 setStatus({
                     type: "errorVolta",
-                    mensagem: "Erro. Nenhum item selecionado.Marque os itens que deseja incluir na promoção antes de aplicar a promoção",
+                    mensagem: "Erro. Nenhum item selecionado.Marque os itens que deseja incluir desconto antes de aplicar o desconto",
                 });
             }
             setExibeLista(localStorage.getItem("listaSelecionados").replace(/,/g, "  /  "))
@@ -60,38 +58,10 @@ export const AplicarPromocao = () => {
         }
         getPromocao()
     }, [loja])
-    
-    const montaPromo = async (e) => {
-        e.preventDefault()
-        if (numeros.descPercentual === 0 && numeros.descReal === 0) {
-            setStatus({
-                type: "error",
-                mensagem: "Erro. Pelo menos um tipo de desconto deve ser preenchido",
-            });
-            return
-        }
-        if (numeros.inicioOferta === '' || numeros.fimOferta === '') {
-            setStatus({
-                type: "error",
-                mensagem: "Erro. Data de início e fim devem ser preenchidas",
-            });
-            return
-        }
-        if (moment(numeros.inicioOferta).format("DD/MM/YYY") < moment(dataHoje).format("DD/MM/YYYY")) {
-            setStatus({
-                type: "error",
-                mensagem: "Erro. Data de início da promoção menor que a data de hoje",
-            });
-            return
-        }
-        if (moment(numeros.fimOferta).format("DD/MM/YYY") <= moment(numeros.inicioOferta).format("DD/MM/YYY")) {
-            setStatus({
-                type: "error",
-                mensagem: "Erro. Data de início da promoção menor que a data do fim",
-            });
-            return
-        }
+
+    async function preparaOferta(numeros) {
         var listaProdutos = localStorage.getItem("listaSelecionados").split(',')
+        console.log("entrei no prepara oferta e olha o listaprodutos " + listaProdutos)
         for (let i = 0; i < listaProdutos.length; i++) {
             const valueToken = localStorage.getItem("token")
             const headers = {
@@ -101,8 +71,6 @@ export const AplicarPromocao = () => {
             }
             await api.get("/produtoslojas/produtoloja/" + loja + "/" + listaProdutos[i] + "/" + name, headers)
                 .then((produto) => {
-                    let valorDescPerc = (produto.data.precoVenda * (numeros.descPercentual / 100))
-                    let valorFinalPromocao = Number(produto.data.precoVenda) - Number(valorDescPerc) - Number(numeros.descReal)
                     dadosOferta.id = produto.data.id
                     dadosOferta.idLojaVirtual = produto.data.idLojaVirtual
                     dadosOferta.idProdutoLoja = produto.data.idProdutoLoja
@@ -110,59 +78,35 @@ export const AplicarPromocao = () => {
                     dadosOferta.marca = produto.data.marca
                     dadosOferta.name = produto.data.name
                     dadosOferta.namecategoria = produto.data.namecategoria
-                    dadosOferta.precoVenda = produto.data.precoVenda
+                    dadosOferta.precoVenda = ((Number(produto.data.precoVenda) * (1 - (Number(numeros.descontoPercent) / 100)) * (1 + (Number(numeros.acrescimoPercent) / 100))) + Number(numeros.acrescimoValor) - Number(numeros.descontoValor))
                     dadosOferta.produtoid = produto.data.produtoid
                     dadosOferta.tipoSimplesComposto = produto.data.tipoSimplesComposto
-                    dadosOferta.precoOferta = valorFinalPromocao
-                    dadosOferta.inicioOferta = moment(numeros.inicioOferta).format("YYYY-MM-DD")
-                    // dadosOferta.inicioOfertaHora = numeros.inicioOfertaHora
-                    dadosOferta.fimOferta = moment(numeros.fimOferta).format("YYYY-MM-DD")
-                    // dadosOferta.fimOfertaHora = numeros.fimOfertaHora
+                    dadosOferta.precoOferta = produto.data.precoOferta
+                    dadosOferta.inicioOferta = undefined
+                    //dadosOferta.inicioOfertaHora = numeros.inicioOfertaHora
+                    dadosOferta.fimOferta = undefined
+                    //dadosOferta.fimOfertaHora = numeros.fimOfertaHora
                     dadosOferta.descontoPercent = numeros.descontoPercent
                     dadosOferta.descontoValor = numeros.descontoValor
-                    dadosOferta.acrescimoPercent = numeros.acrescimoValor
-
-                    if (dadosOferta.fimOferta < dadosOferta.inicioOferta) {
-                        setStatus({
-                            type: "error",
-                            mensagem: "Data de início maior que a data de fim da oferta"
-                        });
-                    }
+                    dadosOferta.acrescimoPercent = numeros.acrescimoPercent
+                    dadosOferta.acrescimoValor = numeros.acrescimoValor
                     salvaOferta(dadosOferta)
-                    enviaUmPreco(listaProdutos[i])
                     
+                    enviaUmPreco(listaProdutos[i])
+
+
+
+
+
+
                 }).catch((erro) => {
                     console.log(erro)
                 })
+                
         }
         localStorage.removeItem("listaSelecionados")
-        
     }
 
-  
-    async function salvaOferta(dadosOferta) {
-        const valueToken = localStorage.getItem("token")
-        const headers = {
-            'headers': {
-                'Authorization': 'Bearer ' + valueToken
-            }
-        }
-        await api.put('/produtoslojas/produtoloja/' + loja + "/" + dadosOferta.produtoid, dadosOferta, headers)
-            .then((response) => {
-                setStatus({
-                    type: "success",
-                    mensagem: response.data.mensagem,
-                });
-            })
-            .catch((err) => {
-                if (err.response) {
-                    setStatus({
-                        type: "error",
-                        mensagem: err.response.data.mensagem,
-                    });
-                }
-            })
-    }
     async function enviaUmPreco(produtoid) {
         setStatus({
             type: "success",
@@ -187,9 +131,62 @@ export const AplicarPromocao = () => {
        
     }
 
+
+
+
+
+    async function salvaOferta(dadosOferta) {
+        console.log("entrei no salvaoferta")
+        const valueToken = localStorage.getItem("token")
+        const headers = {
+            'headers': {
+                'Authorization': 'Bearer ' + valueToken
+            }
+        }
+        console.log(loja + "   " + dadosOferta.produtoid + "  ")
+        console.log(dadosOferta)
+        await api.put('/produtoslojas/produtoloja/' + loja + "/" + dadosOferta.produtoid, dadosOferta, headers)
+            .then((response) => {
+                setStatus({
+                    type: "success",
+                    mensagem: response.data.mensagem,
+                });
+            })
+            .catch((err) => {
+                if (err.response) {
+                    setStatus({
+                        type: "error",
+                        mensagem: err.response.data.mensagem,
+                    });
+                }
+            })
+    }
+
+    const montaDesconto = async (e) => {
+        e.preventDefault()
+        if (numeros.descPercentual > 0 || numeros.descontoValor > 0) {
+            if (numeros.acrescimoPercent > 0 || numeros.acrescimoValor > 0) {
+                console.log("Se concedeu um desconto não pode dar acréscimo")
+                setStatus({
+                    type: "error",
+                    mensagem: "Erro. Se concedeu um desconto não pode dar acréscimo e vice-versa",
+                });
+                return
+            }
+        }
+        if (numeros.descontoPercent > 100) {
+            setStatus({
+                type: "error",
+                mensagem: "Erro. Desconto maior que 100 % do preço do itém",
+            });
+            return
+        }
+        preparaOferta(numeros)
+    }
+
     return (
         <div>
-            <h1>Aplicar Promoção</h1>
+            <h1>Aplicar Descontos / Acréscimo</h1>
             <Link to='/home'>Home </Link>{" / "}
             <Link to={'/pegaTodosProdutos/categoria/' + loja}>Produtos por categoria </Link>{" / "}
             <Link to={'/produtosloja/' + loja}> Produtos por Marca </Link>{" / "}
@@ -199,31 +196,21 @@ export const AplicarPromocao = () => {
             <h2>Loja :{market1}</h2>
             {status.type === "error" ? <p> {status.mensagem}</p> : ""}
             {status.type === "errorVolta" ? (<Navigate to={'/produtosloja/' + loja + "/" + market} state={status} />) : ""}
-            {status.type === "success" ? (<Navigate to={'/buscaloja/' + loja} state={status} />) : ""}
-           
-
+            {status.type === "success" ? (<Navigate to={'/buscaloja/' + loja } state={status} />) : ""}
+            <form onSubmit={montaDesconto}>
+                Desconto<br />
+                <label>Conceder desconto % : </label>
+                <input type="text" name="descontoPercent" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
+                <label>Conceder desconto Valor : </label>
+                <input type="text" name="descontoValor" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
+                <label>Aplicar acréscimo % : </label>
+                <input type="text" name="acrescimoPercent" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input><br />
+                <label>Aplicar acréscimo valor : </label>
+                <input type="text" name="acrescimoValor" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}></input><br />
+                <button type="submit">Enviar Desconto</button>
+            </form>
             <br />
-            <form onSubmit={montaPromo}>
-                Promoção<br />
-                <label>Desconto em percentual : </label>
-                <input type="text" name="descPercentual" placeholder="Desconto em percentual" value={numeros.descPercentual} onChange={valueInput}></input>
-                <label> e/ou Desconto em valor : </label>
-                <input type="text" name="descReal" placeholder="Desconto em Reais" value={numeros.descReal} onChange={valueInput}></input><br />
-                <label>Data início da promoção : </label>
-                <input type="date" name="inicioOferta" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input>
-                {/* <label>Hora início da promoção : </label>
-                <input type="time" name="inicioOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$"  ></input><br /> */}
-                <label>Data fim da promoção : </label>
-                <input type="date" name="fimOferta" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
-                {/* <label>Hora fim da promoção : </label>
-                <input type="time" name="fimOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$"   ></input> */}
-                <button type="submit">Enviar Promoção</button>
-            </form><br />
-
             <span>SKU dos Produtos selecionados : {exibeLista}</span>
-
-
         </div>
-
     )
 }

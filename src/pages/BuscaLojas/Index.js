@@ -73,7 +73,6 @@ export const BuscaLojas = () => {
             }
         }
         await api.post('/produtoslojas/precifica',lista,headers)
-        console.log("Processo finalizado. Todos os produtos de todas as lojas foram precificados")
         setStatus({
             type: "success",
             mensagem: "Processo finalizado. Todos os produtos de todas as lojas foram precificados",
@@ -112,7 +111,7 @@ export const BuscaLojas = () => {
                             <td>{linha.codigoBling}</td>
                             <td>
                                 <Link to={"/buscaloja/" + linha.codigoBling}>Visualizar   </Link>
-                                <Link to={"/editarloja/" + linha.id}>Editar   </Link>
+                                <Link to={"/editarloja/" + linha.codigoBling}>Editar   </Link>
                                 <Link to="#" onClick={() => deleteLoja(linha.id)}>Apagar</Link>
                             </td>
                         </tr>

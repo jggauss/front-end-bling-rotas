@@ -33,8 +33,13 @@ export const CriarLoja = () => {
         e.preventDefault()
         if (!(await validate())) return
         const dadosLoja = { ...user, ...numeros }
-        
-        await api.post('/lojas/lojas', dadosLoja)
+        const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+        await api.post('/lojas/lojas', dadosLoja,headers)
             .then((response) => {
                 setStatus({
                     type: "success",

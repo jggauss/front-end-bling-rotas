@@ -71,9 +71,10 @@ export const Login = ()=>{
                     <input type="password" name="password" placeholder="Digite sua senha" onChange={valueInput}></input><br/>
                     <hr/>
                     
-                    <button type="submit">Login</button>
+                    <button type="submit">Login</button><br/>
                     
-                   <Link to='/login/cadastrar'>Cadastrar Usuário</Link>
+                   <Link to='/login/cadastrar'>Cadastrar Usuário</Link>{" - "}
+                   <Link to='/recover-password'>Recuperar senha</Link>
 
                  </form>
 

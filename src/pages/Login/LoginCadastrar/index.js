@@ -1,5 +1,5 @@
 
-import React,{useEffect, useState} from "react";
+import React,{useState} from "react";
 import {Link} from "react-router-dom"
 import api from "../../../config/configApi";
 
@@ -7,7 +7,6 @@ import * as yup from 'yup';
 
 
 export const LoginCadatrar = ()=>{
-    console.log("cheguei no logincadastrar")
     const [status, setStatus] = useState({
         type:  "",
         mensagem:  "",
@@ -50,7 +49,6 @@ export const LoginCadatrar = ()=>{
                 })
             })
             
-        console.log("vou entrar no backend do cadastrar usuário")
         await api.post('/login/cadastrar',dadosUser)
           .then(()=>{
             setStatus({
@@ -101,7 +99,7 @@ export const LoginCadatrar = ()=>{
                  <Link to='/produtos'>Produtos</Link>{" / "}
                  <Link to='/buscalojas'>Lojas</Link>{" / "}
                  <Link to='/pedidos'>Pedidos</Link>{" / "}
-                 <Link to='/login'>Login</Link>{" / "}
+                 <Link to='/'>Login</Link>{" / "}
                  
                  <hr/>
                  {status.type === "error" ?<p> {status.mensagem}</p> : ""}

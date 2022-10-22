@@ -7,7 +7,7 @@ import { servPrecificaLoja } from "../../services/servPrecificaLoja";
 
 
 export const BuscaLoja = () => {
-    var { loja } = useParams()
+    var { loja,name } = useParams()
     var { state } = useLocation();
     const [dados, setDados] = useState([])
     const [aguarde, setAguarde] = useState("")
@@ -24,7 +24,6 @@ export const BuscaLoja = () => {
                     'Authorization': 'Bearer ' + valueToken
                 }
             }
-
             await api.get("/lojas/loja/" + loja, headers)
                 .then((response) => {
                     setDados({
@@ -57,7 +56,6 @@ export const BuscaLoja = () => {
                         });
                     }
                 })
-
         }
         getLoja()
     }, [loja])
@@ -94,7 +92,6 @@ export const BuscaLoja = () => {
         BuscaLoja()
     };
 
-
     const Child = () => {
         if (dados.aumentaValorPedidoMinimo === true) {
             return <div>Sim</div>
@@ -109,7 +106,7 @@ export const BuscaLoja = () => {
             <Link to={"/editarloja/" + loja}>Editar   </Link>{" / "}
             <Link to="#" onClick={() => deleteLoja(loja)}>Apagar</Link>{" / "}
             <Link to='/buscalojas'> Listar Lojas </Link>{" / "}
-            <Link to={'/produtosloja/' + loja}> Listar Produtos </Link>{" / "}
+            <Link to={'/produtosloja/' + loja +"/"+ dados.name}> Listar Produtos </Link>{" / "}
 
 
             <Link to='/criarloja'><button type="button">Criar loja</button></Link>{" / "}

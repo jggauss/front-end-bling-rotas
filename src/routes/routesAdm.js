@@ -21,6 +21,10 @@ import { Login } from "../pages/Login/Login/index"
 import { LoginCadatrar } from "../pages/Login/LoginCadastrar";
 import { LoginAlterar } from "../pages/Login/LoginAlterar";
 import { Dashboard } from "../pages/Login/Dashboard";
+import { LoginSenha } from "../pages/Login/Senha";
+import { RecoverPassword } from "../pages/Login/RecoverPassword";
+import { PasswordUpdate } from "../pages/Login/PasswordUpdate";
+import { AplicarDesconto } from "../pages/AplicarDesconto.js";
 
 
 function CustomRoute({ children, redirectTo}){
@@ -46,16 +50,20 @@ export default function RoutesAdm() {
                 <Route path='/produtos/zerados' element={<CustomRoute redirectTo="/"><BuscaProdutosCustoZero/> /</CustomRoute>} />
                 <Route path='/produtos/' element={<CustomRoute redirectTo="/"><MostraProdutos/> /</CustomRoute>} />  
                 <Route path='/produto/:id' element={<CustomRoute redirectTo="/"><VerProduto/> /</CustomRoute>} />
-                <Route path='/produtosloja/:loja' element={<CustomRoute redirectTo="/"><ProdutosLoja/> /</CustomRoute>} />
-                <Route path='/produtoloja/:loja/:id' element={<CustomRoute redirectTo="/"><ProdutoLoja/> /</CustomRoute>} />
+                <Route path='/produtosloja/:loja/:name' element={<CustomRoute redirectTo="/"><ProdutosLoja/> /</CustomRoute>} />
+                <Route path='/produtoloja/:loja/:id/:name' element={<CustomRoute redirectTo="/"><ProdutoLoja/> /</CustomRoute>} />
                 
-                <Route path='/produtos/promocao/:loja' element={<CustomRoute redirectTo="/"><AplicarPromocao/> /</CustomRoute>} />
+                <Route path='/produtos/promocao/:loja/:market' element={<CustomRoute redirectTo="/"><AplicarPromocao/> /</CustomRoute>} />
+                <Route path='/produtos/descontos/:loja/:market' element={<CustomRoute redirectTo="/"><AplicarDesconto/> /</CustomRoute>} />
                 <Route path='/pedidos'  element={<CustomRoute redirectTo="/"><PegaTodosPedidos/> /</CustomRoute>} /> 
                 <Route path='/pedidos/:id/:loja' element={<CustomRoute redirectTo="/"><PegaUmPedido/> /</CustomRoute>} />
 
                 <Route path="/" element={<Login/>}/>
                 <Route path="/login/cadastrar" element={<LoginCadatrar/>}/>
+                <Route path="/recover-password" element={<RecoverPassword/>}/>
+                <Route path="/update-password/:key" element={<PasswordUpdate/>}/>
                 <Route path="/login/alterar" element={<CustomRoute redirectTo="/"><LoginAlterar/> /</CustomRoute>} />
+                <Route path="/login/senha" element={<CustomRoute redirectTo="/"><LoginSenha/> /</CustomRoute>} />
                 <Route path="/dashboard" element={<CustomRoute redirectTo="/"><Dashboard/> /</CustomRoute>} />
             </Routes>
         </div>

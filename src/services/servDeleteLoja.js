@@ -6,8 +6,13 @@ export const servDeleteLoja = async (idLoja) => {
 
     alert("Confirma exclusão da loja?")
 
-
-    await api.delete("/lojas/loja/" + idLoja)
+    const valueToken = localStorage.getItem("token")
+    const headers = {
+        'headers': {
+            'Authorization': 'Bearer ' + valueToken
+        }
+    }
+    await api.delete("/lojas/loja/" + idLoja,headers)
         .then((response) => {
             status = ({
                 type: "success",

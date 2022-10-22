@@ -16,8 +16,13 @@ export const VerProduto = () => {
 
         const getProduto = () => {
             var od = id.id
-
-            api.get("/produtos/produto/" + od)
+            const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+            api.get("/produtos/produto/" + od,headers)
 
                 .then((response) => {
                     setDados(response.data)
@@ -51,7 +56,7 @@ export const VerProduto = () => {
             <Link to='/pegaTodosProdutos'>Busca Todos os Produtos </Link>{" / "}
             <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}
 
-            <Link to={'/pegaumproduto/'+dados.codigo}><button type="button">Atualizar do Bling</button> </Link>{" / "}
+            
             {status.type === "error" ? <p> {status.mensagem}</p> : ""}
             {status.type === "success" ? <p> {status.mensagem}</p> : ""}
             

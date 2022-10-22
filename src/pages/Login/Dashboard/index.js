@@ -30,7 +30,6 @@ export const Dashboard = ()=>{
             }
           await api.get('/login/user',headers)
           .then((response)=>{
-            console.log(response)
             setUser({
               email:response.data.email,
               name: response.data.name,
@@ -51,6 +50,7 @@ export const Dashboard = ()=>{
                 <h1>Dashboard</h1>
                  <Link to='/home'>Home </Link>{" / "}
                  <Link to='/login/alterar'>Alterar</Link>{" / "}
+                 <Link to='/login/senha'>Alterar Senha</Link>{" / "}
                  <Link to="/" onClick={handleLogout}>Sair</Link>
                  
                  <hr/>

@@ -1,5 +1,5 @@
 export const MarcaTodos = () => {
 
-    return 'input:checkbox'.prop("checked",true)
+    //return 'input:checkbox'.prop("checked",true)
     
 }

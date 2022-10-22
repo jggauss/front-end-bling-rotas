@@ -34,6 +34,8 @@ export const EditaLoja = (props) => {
     });
     const valueInput2 = (e) =>
         setNumeros({ ...numeros, [e.target.name]: e.target.value.replace(/\D[^,]\D/g,'')});
+
+
     const editLoja = async (e) => {
         e.preventDefault()
         if(!(await validate())) return
@@ -49,7 +51,13 @@ export const EditaLoja = (props) => {
         numeros.valorPercentFreteAcima= Number(numeros.valorPercentFreteAcima.replace(",","."))
         numeros.valorAcimaAumentaParaPedidoMinimo= Number(numeros.valorAcimaAumentaParaPedidoMinimo.replace(",","."))
         var dadosLoja = { ...user, ...numeros }
-        await api.put('/lojas/loja/' + loja, dadosLoja)
+        const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
+        await api.put('/lojas/loja/' + loja, dadosLoja,headers)
             .then((response) => {
                 setStatus({
                     type: "success",
@@ -72,8 +80,14 @@ export const EditaLoja = (props) => {
     }
     useEffect(() => {
         const getLoja = async () => {
+            const valueToken = localStorage.getItem("token")
+            const headers = {
+                'headers': {
+                    'Authorization': 'Bearer ' + valueToken
+                }
+            }
             await api
-                .get("/lojas/loja/" + loja)
+                .get("/lojas/loja/" + loja,headers)
                 .then((response) => {
                     setUser({
                         name: response.data.name,

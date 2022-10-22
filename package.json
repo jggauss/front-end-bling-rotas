@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^13.5.0",
     "express": "^4.18.1",
     "lts": "^1.2.0",
+    "moment": "^2.29.4",
     "nvm": "^0.0.4",
     "react": "^18.2.0",
     "react-router-dom": "^6.4.1",

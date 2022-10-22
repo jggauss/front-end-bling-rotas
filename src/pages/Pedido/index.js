@@ -2,23 +2,23 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom"
 import api from "../../config/configApi";
-import { ExibeDataDia } from "../../services/exibeDataDia";
+import { ExibeData } from "../../services/exibeData";
 export const PegaUmPedido = () => {
     var { state } = useLocation();
     const [status, setStatus] = useState({
         type: state ? state.type : "",
         mensagem: state ? state.mensagem : "",
     });
-    const { id,loja } = useParams()
+    const { id, loja } = useParams()
     const [market, setMarket] = useState("")
-    const [comissaoLoja,setComissaoLoja] = useState(0)
+    const [comissaoLoja, setComissaoLoja] = useState(0)
     const [dados, setDados] = useState([])
     const [data, setData] = useState([])
-    
-    
-   
-    
-    async function nomeLoja (loja) {
+
+
+
+
+    async function nomeLoja(loja) {
         await api.get("/pedidos/pedido/loja/" + loja)
             .then((dadosLoja) => {
                 setComissaoLoja(dadosLoja.data.comissao)
@@ -33,17 +33,17 @@ export const PegaUmPedido = () => {
                 }
             })
     }
-    
 
 
 
-    
+
+
     useEffect(() => {
 
         const getPedido = async () => {
             nomeLoja(loja)
-            
-            
+
+
             async function buscaItens(id) {
                 await api.get('/pedidos/pedido/itens/' + id)
                     .then((responseItens) => {
@@ -56,8 +56,8 @@ export const PegaUmPedido = () => {
                     setDados(response.data)
                 })
                 .catch(() => { })
-    
-    
+
+
             buscaItens(id)
         }
 
@@ -65,8 +65,27 @@ export const PegaUmPedido = () => {
 
         getPedido()
     }, [loja])
+    function MargemBrutaItemPedido(dados) {
 
-    
+        return (dados.totalVenda - dados.totalCustoProdutos - dados.outrasDespesas - ((comissaoLoja / 100) * dados.totalVenda)).toFixed(2).replace('.', ",")
+    }
+
+    function ValorProdutosPedido(produto) {
+        return ((produto.valorUnidade * produto.quantidade).toFixed(2).replace('.', ','))
+    }
+
+    function CustoPedido(produto) {
+        return (produto.precoCusto * produto.quantidade).toFixed(2).replace('.', ',')
+    }
+    function ComissaoPedido(produto) {
+        return ((comissaoLoja / 100) * produto.valorUnidade).toFixed(2).replace(".", ",")
+    }
+    function MargemPedido(produto) {
+        return Number((produto.valorUnidade * produto.quantidade) - ((produto.precoCusto * produto.quantidade) + (comissaoLoja / 100) * produto.valorUnidade)).toFixed(2).replace('.', ',')
+    }
+    function PercentualMargemPedido(produto) {
+        return ((((produto.valorUnidade * produto.quantidade) - ((produto.precoCusto * produto.quantidade) + (comissaoLoja / 100) * produto.valorUnidade)) / (produto.valorUnidade * produto.quantidade)) * 100).toFixed(2).replace(".", ",")
+    }
 
     return (
         <div>
@@ -79,20 +98,20 @@ export const PegaUmPedido = () => {
 
             {status.type === "error" ? <p> {status.mensagem}</p> : ""}
             {status.type === "success" ? <p> {status.mensagem}</p> : ""}
-            <hr/>
+            <hr />
             <h2>Loja : {market}</h2>
-            <span>Comissão da loja : {comissaoLoja}</span><br/>
-            <span>CNPJ/CPF : </span>{dados.cpfCnpj}<br/>
-            <span>Nome : </span>{dados.nomeCliente}<br/>
-            <span>Data da compra : </span>{ExibeDataDia(dados.data)}<br/>
-            <span>Valor total da venda : </span>{Number(dados.totalVenda).toFixed(2).replace('.', ",")}<br/>
-            <span>Valor total dos Produtos : </span>{Number(dados.totalProdutos).toFixed(2).replace('.', ",")}<br/>
-            <span>Valor custo dos Produtos : </span>{Number(dados.totalCustoProdutos).toFixed(2).replace('.', ",")}<br/>
-            <span>Valor total do desconto : </span>{Number(dados.totalDesconto).toFixed(2).replace('.', ",")}<br/>
-            <span>Frete : </span>{Number(dados.valorFrete).toFixed(2).replace('.', ",")}<br/>
-            <span>Outras depesas : </span>{Number(dados.outrasDespesas).toFixed(2).replace('.', ",")}<br/>
-            <span>Comissão da Loja: </span>{Number((comissaoLoja/100)*dados.totalVenda).toFixed(2).replace('.', ",")}<br/>
-            <span>Margem Bruta : </span>{(dados.totalVenda - dados.totalCustoProdutos - dados.outrasDespesas-((comissaoLoja/100)*dados.totalVenda)).toFixed(2).replace('.', ",")}<br />
+            <span>Comissão da loja : {comissaoLoja}</span><br />
+            <span>CNPJ/CPF : </span>{dados.cpfCnpj}<br />
+            <span>Nome : </span>{dados.nomeCliente}<br />
+            <span>Data da compra : </span>{ExibeData(dados.data)}<br />
+            <span>Valor total da venda : </span>{Number(dados.totalVenda).toFixed(2).replace('.', ",")}<br />
+            <span>Valor total dos Produtos : </span>{Number(dados.totalProdutos).toFixed(2).replace('.', ",")}<br />
+            <span>Valor custo dos Produtos : </span>{Number(dados.totalCustoProdutos).toFixed(2).replace('.', ",")}<br />
+            <span>Valor total do desconto : </span>{Number(dados.totalDesconto).toFixed(2).replace('.', ",")}<br />
+            <span>Frete : </span>{Number(dados.valorFrete).toFixed(2).replace('.', ",")}<br />
+            <span>Outras depesas : </span>{Number(dados.outrasDespesas).toFixed(2).replace('.', ",")}<br />
+            <span>Comissão da Loja: </span>{Number((comissaoLoja / 100) * dados.totalVenda).toFixed(2).replace('.', ",")}<br />
+            <span>Margem Bruta : </span>{MargemBrutaItemPedido(dados)}<br />
 
             <hr />
             <table>
@@ -119,12 +138,12 @@ export const PegaUmPedido = () => {
                             <td>{(Number(produto.precoCusto)).toFixed(2).replace('.', ',')}</td>
                             <td>{(Number(produto.descontoItem)).toFixed(2).replace('.', ',')}</td>
                             <td>{(Number(produto.quantidade)).toFixed(0)}</td>
-                            <td>{(produto.valorUnidade * produto.quantidade).toFixed(2).replace('.', ',')}</td>
-                            <td>{(produto.precoCusto * produto.quantidade).toFixed(2).replace('.', ',')}</td>
-                            <td>{((comissaoLoja/100)*produto.valorUnidade).toFixed(2).replace(".",",")}</td>
-                            <td>{((produto.valorUnidade * produto.quantidade) - ((produto.precoCusto * produto.quantidade)+(comissaoLoja/100)*produto.valorUnidade)) < 0 ? <span className="vermelho">{((produto.valorUnidade * produto.quantidade) - ((produto.precoCusto * produto.quantidade)+(comissaoLoja/100)*produto.valorUnidade)).toFixed(2).replace('.', ',')}</span> : <span className="preto">{((produto.valorUnidade * produto.quantidade) - ((produto.precoCusto * produto.quantidade)+(comissaoLoja/100)*produto.valorUnidade)).toFixed(2).replace('.', ',')}</span>}</td>
-                            <td>{((((produto.valorUnidade * produto.quantidade) - ((produto.precoCusto * produto.quantidade)+(comissaoLoja/100)*produto.valorUnidade)) / (produto.valorUnidade * produto.quantidade)) * 100).toFixed(2).replace(".", ",")}%</td>
-                            
+                            <td>{ValorProdutosPedido(produto)}</td>
+                            <td>{CustoPedido(produto)}</td>
+                            <td>{ComissaoPedido(produto)}</td>
+                            <td>{ (MargemPedido(produto))<0 ? <span className="vermelho">{MargemPedido(produto)}</span> : <span className="preto">{MargemPedido(produto)}</span>}</td>
+                            <td>{PercentualMargemPedido(produto)}%</td>
+
                         </tr>
                     ))}
                 </tbody>
