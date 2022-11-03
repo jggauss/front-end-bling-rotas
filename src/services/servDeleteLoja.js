@@ -3,9 +3,6 @@ import api from "../config/configApi"
 export const servDeleteLoja = async (idLoja) => {
 
     var status = false
-
-    alert("Confirma exclusão da loja?")
-
     const valueToken = localStorage.getItem("token")
     const headers = {
         'headers': {

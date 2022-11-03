@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useLocation } from "react-router-dom"
+import { Link, useParams, useLocation, Navigate } from "react-router-dom"
 import api from "../../config/configApi";
+import { servDeleteLoja } from "../../services/servDeleteLoja";
 import { Menu } from "../../Componet/Menu";
 import { MenuProfile } from "../../Componet/MenuProfile";
 
 
-export const BuscaLoja = () => {
-    var { loja, name } = useParams()
+export const DeletaLoja = () => {
+    var { loja } = useParams()
     var { state } = useLocation();
     const [dados, setDados] = useState([])
-
+    
     const [status, setStatus] = useState({
         type: state ? state.type : "",
         mensagem: state ? state.mensagem : "",
     });
-    const [verifica, setVerifica] = useState(false)
+   
     useEffect(() => {
         const getLoja = async () => {
             const valueToken = localStorage.getItem("token")
@@ -26,7 +27,6 @@ export const BuscaLoja = () => {
             await api.get("/lojas/loja/" + loja, headers)
                 .then((response) => {
                     setDados({
-                        id: response.data.id,
                         name: response.data.name,
                         codigoBling: response.data.codigoBling,
                         comissao: response.data.comissao.replace(".", ","),
@@ -60,7 +60,21 @@ export const BuscaLoja = () => {
         getLoja()
     }, [loja])
 
+    const deleteLoja = async (loja) => {
+        const response = await servDeleteLoja(loja);
+        if (response) {
+            setStatus({
+                type: "success",
+                mensagem: response.mensagem,
+            });
 
+        } else {
+            setStatus({
+                type: "error",
+                mensagem: "Erro. Tente mais tarde",
+            });
+        }
+    };
 
     const Child = () => {
         if (dados.aumentaValorPedidoMinimo === true) {
@@ -68,8 +82,6 @@ export const BuscaLoja = () => {
         }
         return <div>Não</div>
     }
-
-
     return (
         <div>
             <MenuProfile />
@@ -79,43 +91,23 @@ export const BuscaLoja = () => {
                     <div className="row">
                         <div className="top-content-admin">
                             <div className="title-content">
-                                <h1 className="sub-menu-title">Visualizar Loja</h1>
-                            </div>
-                            <div className="sub-menu-title">
-                                <div className="sub-menu">
-                                    <div className="item-sub-menu">
-                                        <Link to={"/buscaloja/" + loja}><button type="button" className="pesquisa-title-button">Visualizar</button></Link>
-                                    </div>
-                                    <div className="item-sub-menu">
-                                        <Link to={"/editarloja/" + loja}><button type="button" className="pesquisa-title-button">Editar</button> </Link>
-                                    </div>
-                                    <div className="item-sub-menu">
-                                        <Link to={"/deletaloja/" + loja}><button type="button" className="pesquisa-title-button">Apagar</button></Link>
-                                    </div>
-                                    <div className="item-sub-menu">
-                                        <Link to='/buscalojas'><button type="button" className="pesquisa-title-button">Listar Lojas</button> </Link>
-                                    </div>
-                                    <div className="item-sub-menu">
-                                        <Link to={'/produtosloja/' + loja + "/" + dados.name}><button type="button" className="pesquisa-title-button">Listar Produtos</button> </Link>
-                                    </div>
-                                    <div className="item-sub-menu">
-                                        <Link to='/criarloja'><button type="button" className="pesquisa-title-button">Criar Loja</button></Link>
-                                    </div>
-                                    <div className="item-sub-menu">
-                                        <Link to={'/precificar/' +loja + "/"+ dados.name}><button type="button" className="pesquisa-title-button">Precificar Loja</button></Link>
-                                    </div>
-
-                                </div>
+                                <h1 className="sub-menu-title">Deletar Loja</h1>
                             </div>
                         </div>
                     </div>
+                    <span className="alert-danger">Confirma apagar a loja e todos os registros? Se confirmar os dados não poderão ser recuperados</span>
+
                     <div className="alert-content-adm">
                         {status.type === "success" ? <p className="alert-success">{status.mensagem}</p> : ("")}
                         {status.type === "error" ? <p className="alert-danger">{status.mensagem}</p> : ("")}
+                        {status.type === "success" ? (<Navigate to="/buscalojas" state={status} />) : ("")}
                     </div>
                     <div className="table-list">
-
-
+                        <div className="item-sub-menu">
+                            <Link to="#" onClick={() => deleteLoja(loja)}><button type="button" className="pesquisa-title-button">Confirma</button></Link>
+                            <Link to={'/buscalojas/'}><button type="button" className="pesquisa-title-button">Cancelar</button></Link>
+                        </div>
+                        <br />
                         <div className="texto-wrapped">
                             <h1 className="texto-realcado">Nome : {dados.name}<br /></h1>
                             <p className="texto">Código no Bling : {dados.codigoBling}</p>
@@ -131,7 +123,7 @@ export const BuscaLoja = () => {
                             <p className="texto">Percentual frete : {dados.valorPercentFreteAcima}</p>
                             <span className="texto">Deseja arredondar para o valor do pedido mínimo em caso de ficar abaixo : <Child /></span>
                             <p className="texto">Valor acima do qual deseja que seja arredondado : {dados.valorAcimaAumentaParaPedidoMinimo}</p>
-                            {verifica === true ? <div className="c-loader"></div> : ""}
+                           
                         </div>
                     </div>
                 </div>

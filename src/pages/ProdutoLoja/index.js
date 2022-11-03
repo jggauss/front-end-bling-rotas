@@ -1,24 +1,27 @@
 import moment from "moment";
 import React, { useState, useEffect } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom"
+import { Menu } from "../../Componet/Menu";
+import { MenuProfile } from "../../Componet/MenuProfile";
 import api from "../../config/configApi";
 import { ExibeData } from "../../services/exibeData";
 export const ProdutoLoja = () => {
-    const { loja, id,name } = useParams()
+    const { loja, id, name } = useParams()
     var { state } = useLocation();
     var [market, setMarket] = useState("")
-    const [idLoja,setIdLoja] =useState(loja)
+    const [idLoja, setIdLoja] = useState(loja)
     const [status, setStatus] = useState({
         type: state ? state.type : "",
         mensagem: state ? state.mensagem : "",
     });
+    const [buscaPrecoCusto, setBuscaPrecoCusto] = useState("")
     var [dados, setDados] = useState([])
     var [numeros, setNumeros] = useState({
         precoOferta: 0,
         inicioOferta: "",
-        inicioOfertaHora:null ,
+        inicioOfertaHora: null,
         fimOferta: "",
-        fimOfertaHora:null
+        fimOfertaHora: null
     });
     // let dadosOferta={
     //     id: '',
@@ -37,59 +40,65 @@ export const ProdutoLoja = () => {
     //     fimOferta: new Date(),
     //     fimOfertaHora:null 
     // }
-    
-    
-   
+
+
+
     const valueInput2 = (e) =>
-        setNumeros({ ...numeros, [e.target.name]: e.target.value.replace(/\D[^,]\D/g,'') });
+        setNumeros({ ...numeros, [e.target.name]: e.target.value.replace(/\D[^,]\D/g, '') });
     const valueInput = (e) =>
         setNumeros({ ...numeros, [e.target.name]: e.target.value });
-    
 
-        const getLoja = async (e) => {
-            var valueToken = localStorage.getItem("token")
+
+    const getLoja = async (e) => {
+        var valueToken = localStorage.getItem("token")
         const headers = {
-            'headers':{
-            'Authorization':'Bearer '+ valueToken
+            'headers': {
+                'Authorization': 'Bearer ' + valueToken
             }
         }
 
-            await api.get("/produtoslojas/produtoloja/" + loja + "/" + id +"/"+name,headers)
-                .then((produto) => {
-                    setMarket(name)
-                    setDados({
-                        name:produto.data.name,
-                        precoVenda:produto.data.precoVenda,
-                        precoOferta:produto.data.precoOferta,
-                        marca:produto.data.marca
-                    })
-                    setNumeros({
-    
-                        precoOferta: produto.data.precoOferta.replace(".", ","),
-                        inicioOferta: ExibeData(produto.data.inicioOferta),
-                        fimOferta: ExibeData(produto.data.fimOferta)
-                    })
-                }).catch((err) => {
-                    if (err.response) {
-                        setStatus({
-                            type: 'error',
-                            mensagem: err.response.data.mensagem
-                        })
-    
-                    }
+        await api.get("/produtoslojas/produtoloja/" + loja + "/" + id + "/" + name, headers)
+            .then((produto) => {
+                setMarket(name)
+                setDados({
+                    name: produto.data.name,
+                    precoVenda: produto.data.precoVenda,
+                    precoOferta: produto.data.precoOferta,
+                    marca: produto.data.marca
                 })
-        }
+                setNumeros({
+
+                    precoOferta: produto.data.precoOferta.replace(".", ","),
+                    inicioOferta: ExibeData(produto.data.inicioOferta),
+                    fimOferta: ExibeData(produto.data.fimOferta)
+                })
+            }).catch((err) => {
+                if (err.response) {
+                    setStatus({
+                        type: 'error',
+                        mensagem: err.response.data.mensagem
+                    })
+
+                }
+            })
+        await api.get("/produtos/produto/"+id,headers)
+        .then((response)=>{
+            setBuscaPrecoCusto(response.data.precoCusto)
+
+        })
+        .catch(()=>{})
+    }
 
     useEffect(() => {
-        
+
         getLoja()
     }, [dados.inicioOferta])
     const editaProduto = async (e) => {
         e.preventDefault()
-        dados.precoOferta = Number(numeros.precoOferta)||undefined//tem um replace aqui para tirar o ponto e colocar a vírgula
-        dados.inicioOferta = (numeros.inicioOferta)||undefined
+        dados.precoOferta = Number(numeros.precoOferta) || undefined//tem um replace aqui para tirar o ponto e colocar a vírgula
+        dados.inicioOferta = (numeros.inicioOferta) || undefined
         dados.inicioOfertaHora = numeros.inicioOfertaHora
-        dados.fimOferta = (numeros.fimOferta)||undefined
+        dados.fimOferta = (numeros.fimOferta) || undefined
         dados.fimOfertaHora = numeros.fimOfertaHora
         dados.acrescimoValor = numeros.acrescimoValor
         dados.acrescimoPercent = numeros.acrescimoPercent
@@ -115,16 +124,16 @@ export const ProdutoLoja = () => {
                 return
             }
         }
-        if(dados.precoOferta>0 && dados.inicioOferta ===""){
+        if (dados.precoOferta > 0 && dados.inicioOferta === "") {
             setStatus({
-                         type: "error",
-                         mensagem: "Erro. Promoção não tem data de início",
-                     });
-                     return
+                type: "error",
+                mensagem: "Erro. Promoção não tem data de início",
+            });
+            return
         }
         //faz consistência entre desconto e acréscimo
-        if(dados.descontoPercent>0 || dados.descontoValor>0 ){
-            if(dados.acrescimoPercent>0 || dados.acrescimoValor>0){
+        if (dados.descontoPercent > 0 || dados.descontoValor > 0) {
+            if (dados.acrescimoPercent > 0 || dados.acrescimoValor > 0) {
                 setStatus({
                     type: "error",
                     mensagem: "Erro. Se concedeu um desconto não pode dar acréscimo e vice-versa",
@@ -132,14 +141,14 @@ export const ProdutoLoja = () => {
                 return
             }
         }
-        if(dados.descontoPercent>100){
+        if (dados.descontoPercent > 100) {
             setStatus({
                 type: "error",
                 mensagem: "Erro. Desconto maior que 100 % do preço do itém",
             });
             return
         }
-        if(dados.descontoValor>dados.precoVenda){
+        if (dados.descontoValor > dados.precoVenda) {
             setStatus({
                 type: "error",
                 mensagem: "Erro. Desconto em valor maior do que o preço de venda do intém",
@@ -150,8 +159,8 @@ export const ProdutoLoja = () => {
 
         var valueToken = localStorage.getItem("token")
         const headers = {
-            'headers':{
-            'Authorization':'Bearer '+ valueToken
+            'headers': {
+                'Authorization': 'Bearer ' + valueToken
             }
         }
 
@@ -171,52 +180,74 @@ export const ProdutoLoja = () => {
                     });
                 }
             })
-            
+
     }
-    
+
     return (
         <div>
-            <h1>Consulta produto na loja </h1>
-            <Link to='/home'>Home</Link>{" / "}
-            <Link to='/produtos'>Produtos</Link>{" / "}
-            <Link to='/buscalojas'>Lojas</Link>{" / "}
-            <hr />
-            {status.type === "error" ? <p> {status.mensagem}</p> : ""}
-            {status.type === "success" ? (<Navigate to={'/produtosloja/' + idLoja +"/"+name } state={status} />) : ""}
-            <form onSubmit={editaProduto}>
-                <h2>Loja : {market}</h2>
-                
-                Nome : {dados.name}
-                <br />
-                Preço de venda : {dados.precoVenda}
-                <br />
-                Marca : {dados.marca} <br /><br />
-                <label>Conceder desconto % : </label>
-                <input type="text" name="descontoPercent" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput2}  ></input><br/>
-                <label>Conceder desconto Valor : </label>
-                <input type="text" name="descontoValor" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput2}  ></input><br/>
-                <label>Aplicar acréscimo % : </label>
-                <input type="text" name="acrescimoPercent" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput2} ></input><br/>
-                <label>Aplicar acréscimo valor : </label>
-                <input type="text" name="acrescimoValor" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput2}></input><br/>
-                <br/>
-                <label>Preço de promoção : </label>
-                <input type="text" name="precoOferta" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput2} ></input>
-                <br />
-                <label>Data início da promoção : </label>{numeros.inicioOferta}<span> Alterar para </span>
-                <input type="date" name="inicioOferta" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input>
-                {/* <label>Hora início da promoção : </label>
-                <input type="time" name="inicioOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input>*/}
-                <br /> 
-                <label>Data fim da promoção : </label>{(numeros.fimOferta)}<span> Alterar para </span>
-                <input type="date" name="fimOferta" pattern="^[0-9]*[.,]?[0-9]*$"  onChange={valueInput} ></input>
-                {/* <label>Hora fim da promoção : </label>
-                <input type="time" name="fimOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input> */}
-                <br />
-                <br />
-                <button type="submit">Alterar</button>
-                <br /><br />
-            </form>
+            <MenuProfile />
+            <div className="content">
+                <Menu active="users" />
+                <div className="wrapper">
+                    <div className="row">
+                        <div className="top-content-admin">
+                            <div className="title-content">
+                                <h1 className="sub-menu-title">Consulta produto na loja </h1>
+                            </div>
+
+                            <div className="sub-menu-title">
+                                <div className="sub-menu">
+                                    <div className="item-sub-menu">
+                                        <Link to='/produtos'><button type="button" className="pesquisa-title-button">Produtos</button></Link>
+                                    </div>
+                                    <div className="item-sub-menu">
+                                        <Link to='/buscalojas'><button type="button" className="pesquisa-title-button">Lojas</button></Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="alert-content-adm">
+                        {status.type === "error" ? <p className="alert-danger"> {status.mensagem}</p> : ""}
+                        {status.type === "success" ? (<Navigate to={'/produtosloja/' + idLoja + "/" + name} state={status} />) : ""}
+                    </div>
+                    <div className="texto-wrapped">
+                        <p className="texto"><h2>Loja : {market}</h2></p>
+
+                        <p className="texto">Nome : {dados.name}</p>
+
+                        <p className="texto">Preço de venda : {dados.precoVenda}</p>
+                        <p className="texto">Preço de custo : {buscaPrecoCusto}</p>
+                        <p className="texto">Margem Bruta : {(((Number(dados.precoVenda)/Number(buscaPrecoCusto))*100).toFixed(2)).replace(".",",") } %</p>
+                        <p className="texto">Marca : {dados.marca}</p>
+                        <p className="texto">Conceder desconto % : {dados.descontoPercent}</p>
+
+                        <p className="texto">Conceder desconto Valor : {dados.descontoValor}</p>
+
+                        <p className="texto">Aplicar acréscimo % : {dados.acrescimoPercent} </p>
+
+                        <p className="texto">Aplicar acréscimo valor : {dados.acrescimoValor} </p>
+
+
+                        <p className="texto">Preço de promoção : {dados.precoOferta} </p>
+
+
+                        <p className="texto">Data início da promoção : </p>{numeros.inicioOferta}
+
+                        {/* <p>Hora início da promoção : </p>
+                                    <input type="time" name="inicioOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input>*/}
+
+                        <p className="texto">Data fim da promoção : </p>{(numeros.fimOferta)}
+
+                        {/* <p>Hora fim da promoção : </p>
+                                    <input type="time" name="fimOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input> */}
+
+                    </div>
+
+
+
+                </div>
+            </div>
         </div>
     )
 }

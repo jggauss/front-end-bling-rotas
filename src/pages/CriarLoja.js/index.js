@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, Navigate } from "react-router-dom"
 import api from "../../config/configApi";
 import * as yup from 'yup';
+import { Menu } from "../../Componet/Menu";
+import { MenuProfile } from "../../Componet/MenuProfile";
 export const CriarLoja = () => {
     const [status, setStatus] = useState({
         type: "",
@@ -34,12 +36,12 @@ export const CriarLoja = () => {
         if (!(await validate())) return
         const dadosLoja = { ...user, ...numeros }
         const valueToken = localStorage.getItem("token")
-            const headers = {
-                'headers': {
-                    'Authorization': 'Bearer ' + valueToken
-                }
+        const headers = {
+            'headers': {
+                'Authorization': 'Bearer ' + valueToken
             }
-        await api.post('/lojas/lojas', dadosLoja,headers)
+        }
+        await api.post('/lojas/lojas', dadosLoja, headers)
             .then((response) => {
                 setStatus({
                     type: "success",
@@ -59,7 +61,7 @@ export const CriarLoja = () => {
                     });
                 }
             })
-            
+
     }
     const marcaCheckbox = async (e) => {
         return numeros.aumentaValorPedidoMinimo = true
@@ -89,48 +91,70 @@ export const CriarLoja = () => {
         }
     }
     return (
-        <>
-            <h1>Criar Loja</h1>
-            <Link to='/home'>Home </Link>{" / "}
-            <Link to='/buscalojas'>Listar Lojas</Link>{" / "}
-            <hr />
-            {status.type === "error" ? (<p>{status.mensagem}</p>) : ("")}
-            {status.type === "success" ? (<Navigate to="/buscalojas" state={status} />) : ("")}
-            <form onSubmit={addLoja}>
-                <label>Nome* : </label>
-                <input type="text" name="name" placeholder="Nome do Marketplace" onChange={valueInput}></input><br />
-                <label>Código da loja no Bling* : </label>
-                <input type="text" name="codigo" placeholder="Código numérico da loja no Bling" onChange={valueInput}></input><br />
-                <label>* % Comissão* : </label>
-                <input type="text" name="comissao" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Percentual de comissão pago na loja" onChange={valueInput2} value={numeros.comissao} ></input><br />
-                <label>Margem Bruta : Igual ou acima do valor mínimo acrescentar percentual* : </label>
-                <input type="text" name="percentAcrescAcimaMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Percentual" onChange={valueInput2} value={numeros.percentAcrescAcimaMinimo} ></input><br />
-                <h2>Regras de preço:</h2>
-                <label>Abaixo do valor mínimo para frete grátis acrescentar valor R$ : </label>
-                <input type="text" name="valorAcrescAbaixoMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorAcrescAbaixoMinimo} ></input><br />
-                <label>Abaixo do valor mínimo para frete grátis acrescentar percentual : </label>
-                <input type="text" name="percentAcrescAbaixoMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Percentual" onChange={valueInput2} value={numeros.percentAcrescAbaixoMinimo} ></input><br />
-                <br />
-                <h2><label>Valor para frete grátis : </label>
-                <input type="text" name="valorFreteGratis" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorFreteGratis} ></input><br /></h2>
-                <label>Igual ou acima do valor mínimo para frete grátis acrescentar valor R$ : </label>
-                <input type="text" name="valorAcresAcimaMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorAcresAcimaMinimo} ></input><br />
-                <p>Valores frete acima do valor mínimo: (opcionais)</p>
-                <label>Frete em valor fixo : </label>
-                <input type="text" name="valorFixoFreteAcima" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorFixoFreteAcima} ></input><br />
-                <label>Percentual frete : </label>
-                <input type="text" name="valorPercentFreteAcima" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorPercentFreteAcima} ></input><br />
-                <br />
-                <label>Deseja arredondar para o valor do pedido mínimo em caso de ficar abaixo : </label>
-                <div>
-                    <input type="checkbox" name="aumentaValorPedidoMinimo" onChange={marcaCheckbox} value={numeros.aumentaValorPedidoMinimo}></input><br />
+        <div>
+            <MenuProfile />
+            <div className="content">
+                <Menu active="users" />
+                <div className="wrapper">
+                    <div className="row">
+                        <div className="top-content-admin">
+                            <div className="title-content">
+                                <h1 className="sub-menu-title" >Criar Loja</h1>
+                            </div>
+                            <div className="sub-menu-title">
+                                <div className="sub-menu">
+                                    <div className="item-sub-menu">
+                                        <Link to='/buscalojas'><button type="button" className="pesquisa-title-button">Listar Lojas</button></Link>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                        </div>
+                    </div>
+                    <div className="alert-content-adm">
+                        {status.type === "error" ? (<p className="alert-danger">{status.mensagem}</p>) : ("")}
+                        {status.type === "success" ? (<Navigate to="/buscalojas" state={status} />) : ("")}
+                    </div>
+                    
+                    <form onSubmit={addLoja}>
+                        <div className="texto-wrapped"  >
+                        <label className="texto">Nome* : </label>
+                        <input className="texto" type="text" name="name" placeholder="Nome do Marketplace" onChange={valueInput}></input><br />
+                        <label className="texto">Código da loja no Bling* : </label>
+                        <input className="texto" type="text" name="codigo" placeholder="Código numérico da loja no Bling" onChange={valueInput}></input><br />
+                        <label className="texto">* % Comissão* : </label>
+                        <input className="texto" type="text" name="comissao" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Percentual de comissão pago na loja" onChange={valueInput2} value={numeros.comissao} ></input><br />
+                        <label className="texto">Margem Bruta : Igual ou acima do valor mínimo acrescentar percentual* : </label>
+                        <input className="texto" type="text" name="percentAcrescAcimaMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Percentual" onChange={valueInput2} value={numeros.percentAcrescAcimaMinimo} ></input><br />
+                        <h2 className="texto-realcado">Regras de preço:</h2>
+                        <label className="texto">Abaixo do valor mínimo para frete grátis acrescentar valor R$ : </label>
+                        <input className="texto" type="text" name="valorAcrescAbaixoMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorAcrescAbaixoMinimo} ></input><br />
+                        <label className="texto">Abaixo do valor mínimo para frete grátis acrescentar percentual : </label>
+                        <input className="texto" type="text" name="percentAcrescAbaixoMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Percentual" onChange={valueInput2} value={numeros.percentAcrescAbaixoMinimo} ></input><br />
+                        <br />
+                        <h2><label className="texto-realcado">Valor para frete grátis : </label>
+                            <input className="texto" type="text" name="valorFreteGratis" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorFreteGratis} ></input><br /></h2>
+                        <label className="texto">Igual ou acima do valor mínimo para frete grátis acrescentar valor R$ : </label>
+                        <input className="texto" type="text" name="valorAcresAcimaMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorAcresAcimaMinimo} ></input><br />
+                        <p className="texto">Valores frete acima do valor mínimo: (opcionais)</p>
+                        <label className="texto">Frete em valor fixo : </label>
+                        <input className="texto" type="text" name="valorFixoFreteAcima" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorFixoFreteAcima} ></input><br />
+                        <label className="texto">Percentual frete : </label>
+                        <input className="texto" type="text" name="valorPercentFreteAcima" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorPercentFreteAcima} ></input><br />
+                        <br />
+                        <label className="texto">Deseja arredondar para o valor do pedido mínimo em caso de ficar abaixo : </label>
+                        <div>
+                            <input type="checkbox" name="aumentaValorPedidoMinimo" onChange={marcaCheckbox} value={numeros.aumentaValorPedidoMinimo}></input><br />
+                        </div>
+                        <label className="texto">Valor acima do qual deseja que seja arredondado : </label>
+                        <input className="texto" type="text" name="valorAcimaAumentaParaPedidoMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorAcimaAumentaParaPedidoMinimo} ></input><br />
+                        <button type="submit" className="pesquisa-title-button">Cadastrar</button>
+                        <br /><br />
+                        * Campos com asterísco são obrigatórios
+                        </div>
+                    </form>
                 </div>
-                <label>Valor acima do qual deseja que seja arredondado : </label>
-                <input type="text" name="valorAcimaAumentaParaPedidoMinimo" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="Valor em Real" onChange={valueInput2} value={numeros.valorAcimaAumentaParaPedidoMinimo} ></input><br />
-                <button type="submit">Cadastrar</button>
-                <br /><br />
-                * Campos com asterísco são obrigatórios
-            </form>
-        </>
+            </div>
+        </div>
     )
 }

@@ -1,8 +1,13 @@
 
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom"
+import { useLocation, useParams } from "react-router-dom"
+import { Menu } from "../../Componet/Menu";
+import { MenuProfile } from "../../Componet/MenuProfile";
 import api from "../../config/configApi";
 import { ExibeData } from "../../services/exibeData";
+
+
+
 export const PegaUmPedido = () => {
     var { state } = useLocation();
     const [status, setStatus] = useState({
@@ -89,71 +94,105 @@ export const PegaUmPedido = () => {
 
     return (
         <div>
-            <h1>Consulta Pedido</h1>
-            <Link to='/home'>Home </Link>{" / "}
-            <Link to='/produtos'>Produtos</Link>{" / "}
-            <Link to='/buscalojas'>Lojas</Link>{" / "}
-            <Link to='/pedidos'>Pedidos</Link>{" / "}
+            <MenuProfile />
+            <div className="content">
+                <Menu active="users" />
+                <div className="wrapper">
+                    <div className="row">
+                        <div className="top-content-admin">
+                            <div className="title-content">
+                                <h1 className="sub-menu-title">Consulta Pedido</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="alert-content-adm">
+                        {status.type === "error" ? <p className="alert-danger"> {status.mensagem}</p> : ""}
+                        {status.type === "success" ? <p className="alert-success" > {status.mensagem}</p> : ""}
+                    </div>
+                    <div className="divide-umdecadalado">
+                        <p className="texto"><h2 className="texto">Loja : {market}</h2></p>
+                        <div>
+                            <p className="texto"><span>Data da compra : </span>{ExibeData(dados.data)}</p>
+                        </div>
+
+                    </div>
+                    <div className="divide-colunas-pedido">
+                        <div className="coluna-pedido">
+                            <span className="texto"><span>Nome : </span>{dados.nomeCliente}</span>
+                        </div>
+                        <div className="coluna-pedido">
+                            <span className="texto"><span>CNPJ/CPF : </span>{dados.cpfCnpj}</span>
 
 
-            {status.type === "error" ? <p> {status.mensagem}</p> : ""}
-            {status.type === "success" ? <p> {status.mensagem}</p> : ""}
-            <hr />
-            <h2>Loja : {market}</h2>
-            <span>Comissão da loja : {comissaoLoja}</span><br />
-            <span>CNPJ/CPF : </span>{dados.cpfCnpj}<br />
-            <span>Nome : </span>{dados.nomeCliente}<br />
-            <span>Data da compra : </span>{ExibeData(dados.data)}<br />
-            <span>Valor total da venda : </span>{Number(dados.totalVenda).toFixed(2).replace('.', ",")}<br />
-            <span>Valor total dos Produtos : </span>{Number(dados.totalProdutos).toFixed(2).replace('.', ",")}<br />
-            <span>Valor custo dos Produtos : </span>{Number(dados.totalCustoProdutos).toFixed(2).replace('.', ",")}<br />
-            <span>Valor total do desconto : </span>{Number(dados.totalDesconto).toFixed(2).replace('.', ",")}<br />
-            <span>Frete : </span>{Number(dados.valorFrete).toFixed(2).replace('.', ",")}<br />
-            <span>Outras depesas : </span>{Number(dados.outrasDespesas).toFixed(2).replace('.', ",")}<br />
-            <span>Comissão da Loja: </span>{Number((comissaoLoja / 100) * dados.totalVenda).toFixed(2).replace('.', ",")}<br />
-            <span>Margem Bruta : </span>{MargemBrutaItemPedido(dados)}<br />
+                        </div>
+                    </div>
+                    <div className="divide-colunas-pedido">
 
-            <hr />
-            <table>
-                <thead>
-                    <th>Código Bling</th>
-                    <th>Nome Produto</th>
-                    <th>Preço Venda</th>
-                    <th>Custo</th>
-                    <th>Desconto item</th>
-                    <th>Quantidade</th>
-                    <th>Vl produtos</th>
-                    <th>Custo</th>
-                    <th>Comissão</th>
-                    <th>Margem</th>
-                    <th>Percentual</th>
+                        <div className="coluna-pedido">
+                            <p className="texto"><span>Valor total da venda : </span>{Number(dados.totalVenda).toFixed(2).replace('.', ",")}</p>
+                            <p className="texto"><span>Valor total dos Produtos : </span>{Number(dados.totalProdutos).toFixed(2).replace('.', ",")}</p>
+                        </div>
+                        <div className="coluna-pedido">
+                            <p className="texto"><span>Valor custo dos Produtos : </span>{Number(dados.totalCustoProdutos).toFixed(2).replace('.', ",")}</p>
+                            <p className="texto"><span>Frete : </span>{Number(dados.valorFrete).toFixed(2).replace('.', ",")}</p>
 
-                </thead>
-                <tbody>
-                    {data.map((produto) => (
-                        <tr key={produto.codigo}>
-                            <td>{produto.codigo}</td>
-                            <td>{produto.descricao}</td>
-                            <td>{(Number(produto.valorUnidade)).toFixed(2).replace('.', ',')}</td>
-                            <td>{(Number(produto.precoCusto)).toFixed(2).replace('.', ',')}</td>
-                            <td>{(Number(produto.descontoItem)).toFixed(2).replace('.', ',')}</td>
-                            <td>{(Number(produto.quantidade)).toFixed(0)}</td>
-                            <td>{ValorProdutosPedido(produto)}</td>
-                            <td>{CustoPedido(produto)}</td>
-                            <td>{ComissaoPedido(produto)}</td>
-                            <td>{ (MargemPedido(produto))<0 ? <span className="vermelho">{MargemPedido(produto)}</span> : <span className="preto">{MargemPedido(produto)}</span>}</td>
-                            <td>{PercentualMargemPedido(produto)}%</td>
+                        </div>
+                        <div className="coluna-pedido">
+                            <p className="texto"><span>Outras depesas : </span>{Number(dados.outrasDespesas).toFixed(2).replace('.', ",")}</p>
+                            <p className="texto"><span>Comissão da Loja: </span>{Number((comissaoLoja / 100) * dados.totalVenda).toFixed(2).replace('.', ",")}</p>
+                        </div>
 
-                        </tr>
-                    ))}
-                </tbody>
-
-            </table>
+                        <div className="coluna-pedido">
+                            <p className="texto"><span>Valor total do desconto : </span>{Number(dados.totalDesconto).toFixed(2).replace('.', ",")}</p>
+                            <p className="texto"><span>Margem Bruta : </span>{MargemBrutaItemPedido(dados)}</p>
+                        </div>
 
 
+                        <div className="coluna-pedido">
+
+                        </div>
+                    </div>
+
+                    <table className="table-list">
+                        <thead className="list-head">
+                            <th className="list-head-content">Código Bling</th>
+                            <th className="list-head-content">Nome Produto</th>
+                            <th className="list-head-content">Preço Venda</th>
+                            <th className="list-head-content">Custo</th>
+                            <th className="list-head-content">Desconto item</th>
+                            <th className="list-head-content">Quantidade</th>
+                            <th className="list-head-content">Vl produtos</th>
+                            <th className="list-head-content">Custo</th>
+                            <th className="list-head-content">Comissão</th>
+                            <th className="list-head-content">Margem</th>
+                            <th className="list-head-content">Percentual</th>
+
+                        </thead>
+                        <tbody className="list-body">
+                            {data.map((produto) => (
+                                <tr key={produto.codigo}>
+                                    <td className="list-body-content">{produto.codigo}</td>
+                                    <td className="list-body-content">{produto.descricao}</td>
+                                    <td className="list-body-content">{(Number(produto.valorUnidade)).toFixed(2).replace('.', ',')}</td>
+                                    <td className="list-body-content">{(Number(produto.precoCusto)).toFixed(2).replace('.', ',')}</td>
+                                    <td className="list-body-content">{(Number(produto.descontoItem)).toFixed(2).replace('.', ',')}</td>
+                                    <td className="list-body-content">{(Number(produto.quantidade)).toFixed(0)}</td>
+                                    <td className="list-body-content">{ValorProdutosPedido(produto)}</td>
+                                    <td className="list-body-content">{CustoPedido(produto)}</td>
+                                    <td className="list-body-content">{ComissaoPedido(produto)}</td>
+                                    <td className="list-body-content">{(MargemPedido(produto)) < 0 ? <span className="vermelho">{MargemPedido(produto)}</span> : <span className="preto">{MargemPedido(produto)}</span>}</td>
+                                    <td className="list-body-content">{PercentualMargemPedido(produto)}%</td>
+
+                                </tr>
+                            ))}
+                        </tbody>
+
+                    </table>
 
 
 
+                </div>
+            </div>
         </div>
 
     )

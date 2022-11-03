@@ -3,6 +3,8 @@ import { Link } from "react-router-dom"
 import { Context } from "../../../Context/AuthContext";
 import api from "../../../config/configApi";
 import * as yup from 'yup';
+import { MenuProfile } from "../../../Componet/MenuProfile";
+import { Menu } from "../../../Componet/Menu";
 
 
 
@@ -25,7 +27,7 @@ export const LoginSenha = () => {
 
     useEffect(() => {
         const getuser = async () => {
-            
+
             const valueToken = localStorage.getItem("token")
             const headers = {
                 'headers': {
@@ -37,7 +39,7 @@ export const LoginSenha = () => {
                     setUser({
                         email: response.data.email,
                         name: response.data.name,
-                        password:""
+                        password: ""
 
                     })
                 })
@@ -49,17 +51,17 @@ export const LoginSenha = () => {
 
     const { handleLogout } = useContext(Context)
 
-    const alteraSenha = async (e)=>{
+    const alteraSenha = async (e) => {
         e.preventDefault()
 
-        if(!(await validate())) return
-        
+        if (!(await validate())) return
 
 
-        if(user.password!==user.password2){
+
+        if (user.password !== user.password2) {
             setStatus({
-                type:"error",
-                mensagem:"Erro. Senhas devem ser iguais"
+                type: "error",
+                mensagem: "Erro. Senhas devem ser iguais"
             })
             return
 
@@ -68,47 +70,48 @@ export const LoginSenha = () => {
 
         var valueToken = localStorage.getItem("token")
         const headers = {
-            'headers':{
-            'Authorization':'Bearer '+ valueToken
+            'headers': {
+                'Authorization': 'Bearer ' + valueToken
             }
         }
-        await api.put('/login/senha',user,headers)
-        
-        .then((mensagem)=>{
-            setStatus({
-            type:"success",
-            mensagem: mensagem.data.mensagem
-        })})
-        .catch((erro)=>{
-            setStatus({
-                type:"error",
-                mensagem: "Erro. Usuário não foi alterado"
+        await api.put('/login/senha', user, headers)
+
+            .then((mensagem) => {
+                setStatus({
+                    type: "success",
+                    mensagem: mensagem.data.mensagem
+                })
             })
-        })
+            .catch((erro) => {
+                setStatus({
+                    type: "error",
+                    mensagem: "Erro. Usuário não foi alterado"
+                })
+            })
     }
 
 
-    async function validate(){
+    async function validate() {
         let schema = yup.object().shape({
-            password: yup.string("Nescessário preencher a senha").required("Nescessário preencher a senha").min(6,"Erro. A senha deve ter mais do que 6 caracteres"),
-            
-            
-            
-          });
-          try{
+            password: yup.string("Nescessário preencher a senha").required("Nescessário preencher a senha").min(6, "Erro. A senha deve ter mais do que 6 caracteres"),
+
+
+
+        });
+        try {
             await schema.validate({
-                password:user.password,
-                
+                password: user.password,
+
             })
             return true
-          } catch (err){
+        } catch (err) {
             setStatus({
-                type:'error',
-                mensagem:err.errors
+                type: 'error',
+                mensagem: err.errors
             })
             return false
-          }
-      }
+        }
+    }
 
 
 
@@ -116,35 +119,50 @@ export const LoginSenha = () => {
 
     return (
         <div>
-            <h1>Alterar Senha
+            <MenuProfile />
+            <div className="content">
+                <Menu active="users" />
+                <div className="wrapper">
+                    <div className="row">
+                        <div className="top-content-admin">
+                            <div className="title-content">
+                                <h1 className="sub-menu-title">Alterar Senha</h1>
+                            </div>
+                            <div className="sub-menu-title">
+                                <div className="sub-menu">
+                                    <div className="item-sub-menu">
+                                        <Link to='/login/alterar'><button type="button" className="pesquisa-title-button">Alterar</button>  </Link>
+                                    </div>
+                                    <div className="item-sub-menu">
+                                        <Link to="/" onClick={handleLogout}><button type="button" className="pesquisa-title-button">Sair</button>  </Link>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div className="alert-content-adm">
+                            {status.type === "error" ? <p className="alert-danger"> {status.mensagem}</p> : ""}
+                            {status.type === "success" ? <p className="alert-success"> {status.mensagem}</p> : ""}
+                        </div>
+                        <form onSubmit={alteraSenha} className="texto-wrapped">
 
-            </h1>
-            <Link to='/home'>Home </Link>{" / "}
-            <Link to='/login/alterar'>Alterar</Link>{" / "}
-            <Link to="/" onClick={handleLogout}>Sair</Link>
+                            <p className="texto"><label>Nome : </label>{user.name}</p>
 
-            <hr />
-            {status.type === "error" ? <p> {status.mensagem}</p> : ""}
-            {status.type === "success" ? <p> {status.mensagem}</p> : ""}
+                            <p className="texto"><label>E-mail : </label>{user.email}</p>
 
-            <form onSubmit={alteraSenha}>
+                            <label className="texto">Senha</label>
+                            <input className="texto" type="password" name="password" placeholder="Digite sua senha" onChange={valueInput}></input><br />
+                            <label className="texto">Repita a Senha</label>
+                            <input className="texto" type="password" name="password2" placeholder="Repetir a senha" onChange={valueInput}></input><br />
 
-                <label>Nome : </label>{user.name}<br/>
-
-                <label>E-mail : </label>{user.email}<br/>
-
-                <label>Senha</label>
-                    <input type="password" name="password" placeholder="Digite sua senha" onChange={valueInput}></input><br/>
-                    <label>Repita a Senha</label>
-                    <input type="password" name="password2" placeholder="Repetir a senha" onChange={valueInput}></input><br/>
-
-                    <button type="submit">Alterar</button>
-            </form>
+                            <button type="submit" className="pesquisa-title-button">Alterar</button>
+                        </form>
 
 
+                    </div>
+                </div>
+            </div >
 
-
-        </div>
-
-    )
+            )
 }

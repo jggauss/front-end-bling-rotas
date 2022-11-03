@@ -30,7 +30,7 @@ export const RecoverPassword = (e) => {
                     type: "success",
                     mensagem: response.data.mensagem
                 })
-             })
+            })
             .catch((err) => {
                 if (err.response) {
                     setStatus({
@@ -50,27 +50,34 @@ export const RecoverPassword = (e) => {
 
     return (
         <div>
-            <h1>Recuperar Senha</h1>
+            <div className="d-flex">
+                <div className="container-login">
+                    <div className="wrapped-login">
+                        <div className="title">
+                            <h1>Recupera Senha</h1>
+                        </div>
 
-
-            <hr />
-            {status.type === "error" ? <p> {status.mensagem}</p> : ""}
-            {status.type === "success" ? <p> {status.mensagem}</p> : ""}
-            {status.type === "success" ? (<Navigate to="/" state={status} />) : ""} 
-
-            <form onSubmit={recoverPass}>
-
-                <label>E-mail</label>
-                <input type="text " name="email" placeholder="Digite seu melhor e-mail" onChange={valueInput} ></input><br />
-
-                <button type="submit">Enviar</button>
-                <br />
-
-                <Link to='/login/cadastrar'>Cadastrar</Link>
-                - Lembrou a senha<Link to='/'>Clique aqui</Link>
-
-            </form>
-
+                        <div className="alert-content-adm">
+                            {status.type === "error" ? <p className="alert-danger"> {status.mensagem}</p> : ""}
+                            {status.type === "success" ? <p className="alert-success"> {status.mensagem}</p> : ""}
+                            {status.type === "success" ? (<Navigate to="/" state={status} />) : ""}
+                        </div>
+                        <form onSubmit={recoverPass} className="form-login">
+                            <div className="row">
+                                <label>E-mail</label>
+                                <input type="text " name="email" placeholder="Digite seu melhor e-mail" onChange={valueInput} ></input><br />
+                            </div>
+                            <div className="row button">
+                                <button type="submit" className="button-login">Enviar</button>
+                            </div>
+                            <div className="signup-link">
+                                <Link to='/login/cadastrar' className="link-pg-login">Cadastrar</Link>
+                                - Lembrou a senha <Link to='/' className="link-pg-login">Clique aqui</Link>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
     )

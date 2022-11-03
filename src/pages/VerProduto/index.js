@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom"
+import { Menu } from "../../Componet/Menu";
+import { MenuProfile } from "../../Componet/MenuProfile";
 
 import api from "../../config/configApi";
 
 export const VerProduto = () => {
     var id = useParams()
-    
+
     const [status, setStatus] = useState({
-        type:  "",
+        type: "",
         mensagem: "",
     });
     const [dados, setDados] = useState([]);
@@ -22,7 +24,7 @@ export const VerProduto = () => {
                     'Authorization': 'Bearer ' + valueToken
                 }
             }
-            api.get("/produtos/produto/" + od,headers)
+            api.get("/produtos/produto/" + od, headers)
 
                 .then((response) => {
                     setDados(response.data)
@@ -49,34 +51,44 @@ export const VerProduto = () => {
 
 
     return (
-        <>
-            <h1>Produto</h1>
-            <Link to='/home'>Home </Link>{" / "}
-            
-            <Link to='/pegaTodosProdutos'>Busca Todos os Produtos </Link>{" / "}
-            <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}
-
-            
-            {status.type === "error" ? <p> {status.mensagem}</p> : ""}
-            {status.type === "success" ? <p> {status.mensagem}</p> : ""}
-            
-            <hr />
-            SKU : {dados.codigo}
-            <br />
-            Nome : {dados.name}
-            <br />
-            Id no Bling : {dados.idBling}
-            <br />
-            Situação : {dados.situacao}
-            <br />
-            Preço de custo : {dados.precoCusto}
-            <br />
-            Marca : {dados.marca}
-            <br />
-            Fornecedor : {dados.nomeFornecedor}
-            <br />
-            <hr/>
-        </>
+        <div>
+            <MenuProfile />
+            <div className="content">
+                <Menu active="users" />
+                <div className="wrapper">
+                    <div className="row">
+                        <div className="top-content-admin">
+                            <div className="title-content">
+                                <h1 className="sub-menu-title">Produto</h1>
+                            </div>
+                            <div className="sub-menu-title">
+                                <div className="sub-menu">
+                                    <div className="item-sub-menu">
+                                        <Link to='/pegaTodosProdutos'><button type="button" className="pesquisa-title-button">Busca todos Produtos no Bling</button></Link>
+                                    </div>
+                                    <div className="item-sub-menu">
+                                        <Link to='/produtos/zerados'><button type="button" className="pesquisa-title-button">Produtos com Custo Zero</button></Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="alert-content-adm">
+                        {status.type === "error" ? <p className="alert-danger"> {status.mensagem}</p> : ""}
+                        {status.type === "success" ? <p className="alert-success"> {status.mensagem}</p> : ""}
+                    </div>
+                    <div className="texto-wrapped">
+                        <p className="texto">SKU : {dados.codigo}</p>
+                        <p className="texto" >Nome : {dados.name}</p>
+                        <p className="texto">Id no Bling : {dados.idBling}</p>
+                        <p className="texto">Situação : {dados.situacao}</p>
+                        <p className="texto">Preço de custo : {dados.precoCusto}</p>
+                        <p className="texto">Marca : {dados.marca}</p>
+                        <p className="texto ">Fornecedor : {dados.nomeFornecedor}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     )
 }

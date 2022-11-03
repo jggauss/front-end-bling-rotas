@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 import api from "../../config/configApi";
 import moment from "moment";
+import { MenuProfile } from "../../Componet/MenuProfile";
+import { Menu } from "../../Componet/Menu";
 
 
 export const AplicarPromocao = () => {
@@ -43,7 +45,7 @@ export const AplicarPromocao = () => {
     const dataHoje = new Date()
 
     const valueInput = (e) => {
-        setNumeros({ ...numeros, [e.target.name]: e.target.value.replace(/\D[^,]\D/g, '') })
+        setNumeros({ ...numeros, [e.target.name]: e.target.value.replace(",",".") })
     };
     const name = market
     useEffect(() => {
@@ -60,7 +62,7 @@ export const AplicarPromocao = () => {
         }
         getPromocao()
     }, [loja])
-    
+
     const montaPromo = async (e) => {
         e.preventDefault()
         if (numeros.descPercentual === 0 && numeros.descReal === 0) {
@@ -99,7 +101,7 @@ export const AplicarPromocao = () => {
                     'Authorization': 'Bearer ' + valueToken
                 }
             }
-            await api.get("/produtoslojas/produtoloja/" + loja + "/" + listaProdutos[i] + "/" + name, headers)
+            api.get("/produtoslojas/produtoloja/" + loja + "/" + listaProdutos[i] + "/" + name, headers)
                 .then((produto) => {
                     let valorDescPerc = (produto.data.precoVenda * (numeros.descPercentual / 100))
                     let valorFinalPromocao = Number(produto.data.precoVenda) - Number(valorDescPerc) - Number(numeros.descReal)
@@ -130,16 +132,17 @@ export const AplicarPromocao = () => {
                     }
                     salvaOferta(dadosOferta)
                     enviaUmPreco(listaProdutos[i])
-                    
+
                 }).catch((erro) => {
                     console.log(erro)
                 })
+                
         }
         localStorage.removeItem("listaSelecionados")
-        
+
     }
 
-  
+
     async function salvaOferta(dadosOferta) {
         const valueToken = localStorage.getItem("token")
         const headers = {
@@ -148,20 +151,8 @@ export const AplicarPromocao = () => {
             }
         }
         await api.put('/produtoslojas/produtoloja/' + loja + "/" + dadosOferta.produtoid, dadosOferta, headers)
-            .then((response) => {
-                setStatus({
-                    type: "success",
-                    mensagem: response.data.mensagem,
-                });
-            })
-            .catch((err) => {
-                if (err.response) {
-                    setStatus({
-                        type: "error",
-                        mensagem: err.response.data.mensagem,
-                    });
-                }
-            })
+            .then(() => {})
+            .catch(() => {})
     }
     async function enviaUmPreco(produtoid) {
         setStatus({
@@ -170,60 +161,60 @@ export const AplicarPromocao = () => {
         });
         const valueToken = localStorage.getItem("token")
         const headers = {
-            'headers':{
-            'Authorization':'Bearer '+ valueToken
+            'headers': {
+                'Authorization': 'Bearer ' + valueToken
             }
         }
-        await api.put('produtoslojas/enviaumproduto/' + produtoid + "/" + loja,headers,(req,res)=>
-        {try {
-            res.status(200)
-            return
-           } catch (error) {
-            res.status(400)
-           }}
-            
-            
-        )
-       
+        await api.put('produtoslojas/enviaumproduto/' + produtoid + "/" + loja, headers)
+        .then(()=>{})
+        .catch(()=>{})
+
     }
 
     return (
         <div>
-            <h1>Aplicar Promoção</h1>
-            <Link to='/home'>Home </Link>{" / "}
-            <Link to={'/pegaTodosProdutos/categoria/' + loja}>Produtos por categoria </Link>{" / "}
-            <Link to={'/produtosloja/' + loja}> Produtos por Marca </Link>{" / "}
-            <Link to={'/produtosloja/pesquisa/' + loja}> Produtos por Nome </Link>{" / "}
-            <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}
-            <hr />
-            <h2>Loja :{market1}</h2>
-            {status.type === "error" ? <p> {status.mensagem}</p> : ""}
-            {status.type === "errorVolta" ? (<Navigate to={'/produtosloja/' + loja + "/" + market} state={status} />) : ""}
-            {status.type === "success" ? (<Navigate to={'/buscaloja/' + loja} state={status} />) : ""}
-           
+            <MenuProfile />
+            <div className="content">
+                <Menu active="users" />
+                <div className="wrapper">
+                    <div className="row">
+                        <div className="top-content-admin">
+                            <div className="title-content">
+                                <h1 className="sub-menu-title" >Aplicar Promoção</h1>
+                            </div>
 
-            <br />
-            <form onSubmit={montaPromo}>
-                Promoção<br />
-                <label>Desconto em percentual : </label>
-                <input type="text" name="descPercentual" placeholder="Desconto em percentual" value={numeros.descPercentual} onChange={valueInput}></input>
-                <label> e/ou Desconto em valor : </label>
-                <input type="text" name="descReal" placeholder="Desconto em Reais" value={numeros.descReal} onChange={valueInput}></input><br />
-                <label>Data início da promoção : </label>
-                <input type="date" name="inicioOferta" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input>
-                {/* <label>Hora início da promoção : </label>
-                <input type="time" name="inicioOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$"  ></input><br /> */}
-                <label>Data fim da promoção : </label>
-                <input type="date" name="fimOferta" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
-                {/* <label>Hora fim da promoção : </label>
-                <input type="time" name="fimOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$"   ></input> */}
-                <button type="submit">Enviar Promoção</button>
-            </form><br />
+                        </div>
+                    </div>
+                    <hr />
+                    <h2 className="texto-realcado">Loja :{market1}</h2>
+                    <div className="alert-content-adm">
+                        {status.type === "error" ? <p className="alert-danger" > {status.mensagem}</p> : ""}
+                        {status.type === "errorVolta" ? (<Navigate to={'/produtosloja/' + loja + "/" + market} state={status} />) : ""}
+                        {status.type === "success" ? (<Navigate to={'/buscaloja/' + loja} state={status} />) : ""}
+                    </div>
 
-            <span>SKU dos Produtos selecionados : {exibeLista}</span>
+                    <br />
+                    <form onSubmit={montaPromo}>
+                        <p className="texto-realcado">Promoção</p>
+                        <label className="texto">Desconto em percentual : </label>
+                        <input className="texto" type="text" name="descPercentual" placeholder="Desconto em percentual" value={numeros.descPercentual} onChange={valueInput}></input>
+                        <label className="texto"> e/ou Desconto em valor : </label>
+                        <input className="texto" type="text" name="descReal" placeholder="Desconto em Reais" value={numeros.descReal} onChange={valueInput}></input><br />
+                        <label className="texto">Data início da promoção : </label>
+                        <input className="texto" type="date" name="inicioOferta" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input>
+                        {/* <label>Hora início da promoção : </label>
+                        <input type="time" name="inicioOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$"  ></input><br /> */}
+                        <label className="texto">Data fim da promoção : </label>
+                        <input className="texto" type="date" name="fimOferta" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
+                        {/* <label>Hora fim da promoção : </label>
+                        <input type="time" name="fimOfertaHora" pattern="^[0-9]*[.,]?[0-9]*$"   ></input> */}
+                        <button type="submit" className="pesquisa-title-button">Enviar Promoção</button>
+                    </form><br />
 
+                    <span className="texto">SKU dos Produtos selecionados : {exibeLista}</span>
 
+                </div>
+            </div>
         </div>
-
     )
 }

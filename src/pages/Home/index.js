@@ -1,32 +1,32 @@
-import React,{useContext, useState} from "react";
-import {Link,useLocation} from "react-router-dom"
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom"
+import { Menu } from "../../Componet/Menu";
 
-export const Home = ()=>{
-    var { state } = useLocation();
-    const [status, setStatus] = useState({
-        type: state ? state.type : "",
-        mensagem: state ? state.mensagem : "",
-      });
-
-      
-      
-
-
-    return (
-            <div>
+import { MenuProfile } from "../../Componet/MenuProfile";
+export const Home = () => {
+  var { state } = useLocation();
+  const [status, setStatus] = useState({
+    type: state ? state.type : "",
+    mensagem: state ? state.mensagem : "",
+  });
+  return (
+    <div>
+      <MenuProfile />
+      <div className="content">
+        <Menu active="users"/>
+        <div className="wrapper">
+          <div className="row">
+            <div className="to-content-adim">
+              <div className="title-content">
                 <h1>Home</h1>
-                 <Link to='/home'>Home </Link>{" / "}
-                 <Link to='/produtos'>Produtos</Link>{" / "}
-                 <Link to='/buscalojas'>Lojas</Link>{" / "}
-                 <Link to='/pedidos'>Pedidos</Link>{" / "}
-                 <Link to='/dashboard'>Dashboard</Link>{" / "}
-                 
-                 
-                 
-                 <hr/>
-                 {status.type === "error" ?<p> {status.mensagem}</p> : ""}
-                 {status.type === "success" ?<p> {status.mensagem}</p> : ""}                                                      
+              </div>
+              {status.type === "error" ? <p className="alert-danger"> {status.mensagem}</p> : ""}
+              {status.type === "success" ? <p className="alert-success"> {status.mensagem}</p> : ""}
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    )
+  )
 }

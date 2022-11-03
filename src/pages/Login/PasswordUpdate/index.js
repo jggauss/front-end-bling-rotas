@@ -99,20 +99,35 @@ export const PasswordUpdate = (props) => {
 
   return (
     <div>
+       <div className="d-flex">
+                <div className="container-login">
+                    <div className="wrapped-login">
+                        <div className="title">
       <h1>Editar a senha</h1>
-
-      {status.type === "error" ? <p> {status.mensagem}</p> : ""}
-      {status.type === "success" ? <p> {status.mensagem}</p> : ""}
-      {status.type === "error" ? (<Navigate to="/" state={status} />) : ""}
-      {status.type === "redsuccess" ? (<Navigate to="/" state={status} />) : ""}
-
-      <form onSubmit={updatePassword}>
+      </div>
+      <div className="alert-content-adm">
+        {status.type === "error" ? <p className="alert-danger"> {status.mensagem}</p> : ""}
+        {status.type === "success" ? <p className="alert-success"> {status.mensagem}</p> : ""}
+        {status.type === "error" ? (<Navigate to="/" state={status} />) : ""}
+        {status.type === "redsuccess" ? (<Navigate to="/" state={status} />) : ""}
+      </div>
+      <form onSubmit={updatePassword} className="form-login">
+      <div className="row">
         <label>Senha* : </label>
         <input type="password" name="password" placeholder="Senha com no mínimo 6 digitos" onChange={text => setPassword(text.target.value)}></input><br /><br />
+      </div>
+      
         * Campo obrigatório
-        <button type="submit">Salvar</button><br /><br />
-        Lembrou a senha<Link to='/'>Clique aqui</Link>
+      <div className="signup-link">
+        <button type="submit" className="pesquisa-title-button">Salvar</button><br /><br />
+      </div>
+      <div className="signup-link">
+        Lembrou a senha<Link to='/' className="link-pg-login">Clique aqui</Link>
+        </div>
       </form>
+    </div>
+    </div>
+    </div>
     </div>
   )
 }

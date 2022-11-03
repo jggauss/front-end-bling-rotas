@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 import api from "../../config/configApi";
 import moment from "moment";
+import { MenuProfile } from "../../Componet/MenuProfile";
+import { Menu } from "../../Componet/Menu";
 
 export const AplicarDesconto = () => {
     const { loja, market } = useParams()
@@ -39,10 +41,13 @@ export const AplicarDesconto = () => {
         type: state ? state.type : "",
         mensagem: state ? state.mensagem : "",
     });
-
+    
     const valueInput = (e) => {
-        setNumeros({ ...numeros, [e.target.name]: e.target.value.replace(/\D[^,]\D/g, '') })
+        setNumeros({ ...numeros, [e.target.name]: e.target.value.replace(",",".")})
+        
     };
+
+    
     const name = market
     useEffect(() => {
         const getPromocao = async (e) => {
@@ -61,7 +66,7 @@ export const AplicarDesconto = () => {
 
     async function preparaOferta(numeros) {
         var listaProdutos = localStorage.getItem("listaSelecionados").split(',')
-        console.log("entrei no prepara oferta e olha o listaprodutos " + listaProdutos)
+
         for (let i = 0; i < listaProdutos.length; i++) {
             const valueToken = localStorage.getItem("token")
             const headers = {
@@ -69,6 +74,7 @@ export const AplicarDesconto = () => {
                     'Authorization': 'Bearer ' + valueToken
                 }
             }
+
             await api.get("/produtoslojas/produtoloja/" + loja + "/" + listaProdutos[i] + "/" + name, headers)
                 .then((produto) => {
                     dadosOferta.id = produto.data.id
@@ -86,21 +92,14 @@ export const AplicarDesconto = () => {
                     //dadosOferta.inicioOfertaHora = numeros.inicioOfertaHora
                     dadosOferta.fimOferta = undefined
                     //dadosOferta.fimOfertaHora = numeros.fimOfertaHora
-                    dadosOferta.descontoPercent = numeros.descontoPercent
-                    dadosOferta.descontoValor = numeros.descontoValor
-                    dadosOferta.acrescimoPercent = numeros.acrescimoPercent
-                    dadosOferta.acrescimoValor = numeros.acrescimoValor
+                    dadosOferta.descontoPercent = Number(numeros.descontoPercent)
+                    dadosOferta.descontoValor = Number(numeros.descontoValor)
+                    dadosOferta.acrescimoPercent = Number(numeros.acrescimoPercent).toFixed(2)
+                    dadosOferta.acrescimoValor = Number(numeros.acrescimoValor).toFixed(2)
                     salvaOferta(dadosOferta)
                     
                     enviaUmPreco(listaProdutos[i])
-
-
-
-
-
-
                 }).catch((erro) => {
-                    console.log(erro)
                 })
                 
         }
@@ -118,16 +117,9 @@ export const AplicarDesconto = () => {
             'Authorization':'Bearer '+ valueToken
             }
         }
-        await api.put('produtoslojas/enviaumproduto/' + produtoid + "/" + loja,headers,(req,res)=>
-        {try {
-            res.status(200)
-            return
-           } catch (error) {
-            res.status(400)
-           }}
-            
-            
-        )
+        await api.put('produtoslojas/enviaumproduto/' + produtoid + "/" + loja,headers)
+        .then(()=>{})
+        .catch(()=>{})
        
     }
 
@@ -136,37 +128,23 @@ export const AplicarDesconto = () => {
 
 
     async function salvaOferta(dadosOferta) {
-        console.log("entrei no salvaoferta")
+
         const valueToken = localStorage.getItem("token")
         const headers = {
             'headers': {
                 'Authorization': 'Bearer ' + valueToken
             }
         }
-        console.log(loja + "   " + dadosOferta.produtoid + "  ")
-        console.log(dadosOferta)
         await api.put('/produtoslojas/produtoloja/' + loja + "/" + dadosOferta.produtoid, dadosOferta, headers)
-            .then((response) => {
-                setStatus({
-                    type: "success",
-                    mensagem: response.data.mensagem,
-                });
-            })
-            .catch((err) => {
-                if (err.response) {
-                    setStatus({
-                        type: "error",
-                        mensagem: err.response.data.mensagem,
-                    });
-                }
-            })
+            .then(() => {})
+            .catch(() => {})
     }
 
     const montaDesconto = async (e) => {
         e.preventDefault()
         if (numeros.descPercentual > 0 || numeros.descontoValor > 0) {
             if (numeros.acrescimoPercent > 0 || numeros.acrescimoValor > 0) {
-                console.log("Se concedeu um desconto não pode dar acréscimo")
+
                 setStatus({
                     type: "error",
                     mensagem: "Erro. Se concedeu um desconto não pode dar acréscimo e vice-versa",
@@ -186,31 +164,41 @@ export const AplicarDesconto = () => {
 
     return (
         <div>
-            <h1>Aplicar Descontos / Acréscimo</h1>
-            <Link to='/home'>Home </Link>{" / "}
-            <Link to={'/pegaTodosProdutos/categoria/' + loja}>Produtos por categoria </Link>{" / "}
-            <Link to={'/produtosloja/' + loja}> Produtos por Marca </Link>{" / "}
-            <Link to={'/produtosloja/pesquisa/' + loja}> Produtos por Nome </Link>{" / "}
-            <Link to='/produtos/zerados'>Produtos com custo zero</Link>{" / "}
-            <hr />
-            <h2>Loja :{market1}</h2>
+             <MenuProfile />
+            <div className="content">
+                <Menu active="users" />
+                <div className="wrapper">
+                    <div className="row">
+                        <div className="top-content-admin">
+                            <div className="title-content">
+                                <h1 className="sub-menu-title" >Aplicar Desconto/Acréscimo</h1>
+                            </div>
+
+                        </div>
+                    </div>
+            
+            <h2 className="texto-realcado">Loja :{market1}</h2>
+            <div className="alert-content-adm">
             {status.type === "error" ? <p> {status.mensagem}</p> : ""}
             {status.type === "errorVolta" ? (<Navigate to={'/produtosloja/' + loja + "/" + market} state={status} />) : ""}
             {status.type === "success" ? (<Navigate to={'/buscaloja/' + loja } state={status} />) : ""}
+            </div>
             <form onSubmit={montaDesconto}>
-                Desconto<br />
-                <label>Conceder desconto % : </label>
-                <input type="text" name="descontoPercent" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
-                <label>Conceder desconto Valor : </label>
-                <input type="text" name="descontoValor" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
-                <label>Aplicar acréscimo % : </label>
-                <input type="text" name="acrescimoPercent" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input><br />
-                <label>Aplicar acréscimo valor : </label>
-                <input type="text" name="acrescimoValor" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}></input><br />
-                <button type="submit">Enviar Desconto</button>
+            <p className="texto-realcado">Desconto/Acréscimo</p>
+                <label className="texto">Conceder desconto % : </label>
+                <input className="texto" type="text" name="descontoPercent" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
+                <label className="texto">Conceder desconto Valor : </label>
+                <input className="texto" type="text" name="descontoValor" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}  ></input><br />
+                <label className="texto">Aplicar acréscimo % : </label>
+                <input  className="texto"type="text" name="acrescimoPercent" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput} ></input><br />
+                <label className="texto">Aplicar acréscimo valor : </label>
+                <input className="texto" type="text" name="acrescimoValor" pattern="^[0-9]*[.,]?[0-9]*$" onChange={valueInput}></input><br />
+                <button  className="pesquisa-title-button" type="submit">Enviar Desconto</button>
             </form>
             <br />
-            <span>SKU dos Produtos selecionados : {exibeLista}</span>
+            <span className="texto">SKU dos Produtos selecionados : {exibeLista}</span>
+        </div>
+        </div>
         </div>
     )
 }
